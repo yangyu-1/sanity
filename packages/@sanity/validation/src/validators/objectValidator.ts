@@ -1,4 +1,4 @@
-import {Validators} from '@sanity/types'
+import {Validators, isReference} from '@sanity/types'
 import genericValidator from './genericValidator'
 
 const metaKeys = ['_key', '_type', '_weak']
@@ -20,13 +20,33 @@ const objectValidators: Validators = {
     return true
   },
 
-  reference: (_unused, value, message) => {
+  reference: async (_unused, value: unknown, message, context) => {
     if (!value) {
       return true
     }
 
-    if (typeof value._ref !== 'string') {
+    if (!isReference(value)) {
       return message || 'Must be a reference to a document'
+    }
+
+    const {type, getDocumentExists} = context
+
+    if (!type) {
+      throw new Error(`\`type\` was not provided in validation context`)
+    }
+
+    if ('weak' in type && type.weak) {
+      return true
+    }
+
+    if (!getDocumentExists) {
+      throw new Error(`\`getDocumentExists\` was not provided in validation context`)
+    }
+
+    const exists = await getDocumentExists({id: value._ref})
+    // TODO: this error message copy may need improvement
+    if (!exists) {
+      return 'The referenced document is not yet published. Fix this error by opening the referenced document and publishing it'
     }
 
     return true
