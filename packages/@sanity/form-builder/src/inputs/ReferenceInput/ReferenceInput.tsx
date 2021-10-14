@@ -546,7 +546,7 @@ export const ReferenceInput = forwardRef(function ReferenceInput(
             >
               <Card
                 padding={1}
-                shadow={1}
+                border
                 radius={1}
                 tone={referenceInfoLoadError || errors.length > 0 ? 'critical' : 'default'}
               >
