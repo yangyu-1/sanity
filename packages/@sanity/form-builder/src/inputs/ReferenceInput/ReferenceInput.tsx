@@ -230,15 +230,15 @@ export const ReferenceInput = forwardRef(function ReferenceInput(
   const refDocumentExists =
     hasRef &&
     !isReferenceInfoLoading &&
-    referenceInfo.draft.availability.reason !== AvailabilityReason.NOT_FOUND &&
-    referenceInfo.published.availability.reason !== AvailabilityReason.NOT_FOUND
+    referenceInfo?.draft.availability.reason !== AvailabilityReason.NOT_FOUND &&
+    referenceInfo?.published.availability.reason !== AvailabilityReason.NOT_FOUND
 
   const hasInsufficientPermissions =
     hasRef &&
     !isReferenceInfoLoading &&
     refDocumentExists &&
-    referenceInfo.draft.availability.reason === AvailabilityReason.PERMISSION_DENIED &&
-    referenceInfo.published.availability.reason === AvailabilityReason.PERMISSION_DENIED
+    referenceInfo?.draft.availability.reason === AvailabilityReason.PERMISSION_DENIED &&
+    referenceInfo?.published.availability.reason === AvailabilityReason.PERMISSION_DENIED
 
   // If the reference value is marked with _strengthenOnPublish,
   // we allow weak references if the reference points to a document that has a draft but not a published
