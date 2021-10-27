@@ -230,8 +230,8 @@ export const ReferenceInput = forwardRef(function ReferenceInput(
   const refDocumentExists =
     hasRef &&
     !isReferenceInfoLoading &&
-    referenceInfo?.draft.availability.reason !== AvailabilityReason.NOT_FOUND &&
-    referenceInfo?.published.availability.reason !== AvailabilityReason.NOT_FOUND
+    (referenceInfo?.draft.availability.reason !== AvailabilityReason.NOT_FOUND ||
+      referenceInfo?.published.availability.reason !== AvailabilityReason.NOT_FOUND)
 
   const hasInsufficientPermissions =
     hasRef &&
