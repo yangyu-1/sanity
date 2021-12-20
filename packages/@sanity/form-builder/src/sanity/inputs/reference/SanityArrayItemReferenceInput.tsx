@@ -22,6 +22,7 @@ import * as adapter from '../client-adapters/reference'
 import {ArrayItemReferenceInput} from '../../../inputs/ReferenceInput/ArrayItemReferenceInput'
 import {EditReferenceEvent} from '../../../inputs/ReferenceInput/types'
 import {schema} from '../../../legacyParts'
+import {InsertEvent} from '../../../inputs/arrays/ArrayOfObjectsInput/types'
 
 // eslint-disable-next-line require-await
 async function resolveUserDefinedFilter(
@@ -53,6 +54,7 @@ export type Props = {
   focusPath: Path
   readOnly?: boolean
   isSortable: boolean
+  onInsert: (event: InsertEvent) => void
   onFocus: (path: Path) => void
   onChange: (event: PatchEvent) => void
   level: number

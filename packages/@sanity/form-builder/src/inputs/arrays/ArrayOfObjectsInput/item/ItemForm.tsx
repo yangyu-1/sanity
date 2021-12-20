@@ -2,7 +2,7 @@ import {isReferenceSchemaType, Marker, Path, SchemaType} from '@sanity/types'
 import React, {ForwardedRef, forwardRef, useMemo} from 'react'
 import {FormFieldPresence} from '@sanity/base/presence'
 import {FormBuilderInput} from '../../../../FormBuilderInput'
-import {ArrayMember, ReferenceItemComponentType} from '../types'
+import {ArrayMember, InsertEvent, ReferenceItemComponentType} from '../types'
 import PatchEvent from '../../../../PatchEvent'
 import {Props as InputProps} from '../../../types'
 
@@ -10,6 +10,7 @@ type Props = {
   type: SchemaType
   value: ArrayMember
   compareValue?: ArrayMember[]
+  onInsert: (event: InsertEvent) => void
   markers: Marker[]
   onChange: (event: PatchEvent) => void
   onFocus: (path: Path) => void
@@ -36,6 +37,7 @@ export const ItemForm = forwardRef(function ItemForm(props: Props, ref: Forwarde
     isSortable,
     filterField,
     presence,
+    onInsert,
     compareValue,
   } = props
 
@@ -48,10 +50,18 @@ export const ItemForm = forwardRef(function ItemForm(props: Props, ref: Forwarde
             givenProps: InputProps,
             inputRef: ForwardedRef<{focus: () => void}>
           ) {
-            return <ReferenceItemComponent {...givenProps} isSortable={isSortable} ref={inputRef} />
+            return (
+              <ReferenceItemComponent
+                {...givenProps}
+                onInsert={onInsert}
+                isSortable={isSortable}
+                onChange={props.onChange}
+                ref={inputRef}
+              />
+            )
           })
         : undefined,
-    [ReferenceItemComponent, isReference, isSortable]
+    [ReferenceItemComponent, isReference, isSortable, props.onChange]
   )
 
   return (

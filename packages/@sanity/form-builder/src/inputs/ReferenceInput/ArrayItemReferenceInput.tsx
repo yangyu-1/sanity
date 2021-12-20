@@ -15,6 +15,9 @@ import {
   LaunchIcon as OpenInNewTabIcon,
   SyncIcon as ReplaceIcon,
   TrashIcon,
+  CopyIcon as DuplicateIcon,
+  InsertAboveIcon,
+  InsertBelowIcon,
 } from '@sanity/icons'
 import {concat, Observable, of} from 'rxjs'
 import {catchError, distinctUntilChanged, filter, map, scan, switchMap, tap} from 'rxjs/operators'
@@ -50,6 +53,8 @@ import {isNonNullable} from '../../utils/isNonNullable'
 import {AlertStrip} from '../../AlertStrip'
 import {RowWrapper} from '../arrays/ArrayOfObjectsInput/item/components/RowWrapper'
 import {DragHandle} from '../arrays/common/DragHandle'
+import {InsertEvent} from '../arrays/ArrayOfObjectsInput/types'
+import randomKey from '../arrays/common/randomKey'
 import {BaseInputProps, CreateOption, SearchState} from './types'
 import {OptionPreview} from './OptionPreview'
 import {useReferenceInfo} from './useReferenceInfo'
@@ -68,6 +73,7 @@ const INITIAL_SEARCH_STATE: SearchState = {
 export interface Props extends BaseInputProps {
   value: OptionalRef
   isSortable: boolean
+  onInsert: (event: InsertEvent) => void
 }
 
 const NO_FILTER = () => true
@@ -104,6 +110,7 @@ export const ArrayItemReferenceInput = forwardRef(function ReferenceInput(
     isSortable,
     level,
     onBlur,
+    onInsert,
     selectedState,
     editReferenceLinkComponent: EditReferenceLink,
     onEditReference,
@@ -129,6 +136,24 @@ export const ArrayItemReferenceInput = forwardRef(function ReferenceInput(
 
     onEditReference({id, type: option.type, template: option.template})
     onFocus?.([])
+  }
+
+  const handleDuplicate = () => {
+    onInsert({
+      item: {...value, _key: randomKey()},
+      position: 'after',
+      path: [{_key: value._key}],
+      edit: false,
+    })
+  }
+
+  const handleInsert = (pos: 'before' | 'after') => {
+    const key = randomKey()
+    onInsert({
+      item: {_type: type.name, _key: key},
+      position: pos,
+      path: [{_key: value._key}],
+    })
   }
 
   const handleChange = useCallback(
@@ -548,6 +573,21 @@ export const ArrayItemReferenceInput = forwardRef(function ReferenceInput(
                         icon={ReplaceIcon}
                         onClick={() => {
                           onFocus?.(['_ref'])
+                        }}
+                      />
+                      <MenuItem text="Duplicate" icon={DuplicateIcon} onClick={handleDuplicate} />
+                      <MenuItem
+                        text="Add item above"
+                        icon={InsertAboveIcon}
+                        onClick={() => {
+                          handleInsert('before')
+                        }}
+                      />
+                      <MenuItem
+                        text="Add item below"
+                        icon={InsertBelowIcon}
+                        onClick={() => {
+                          handleInsert('after')
                         }}
                       />
                     </>
