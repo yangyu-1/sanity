@@ -100,7 +100,7 @@ const StyledItemWithMissingType = styled(ItemWithMissingType)`
 `
 
 const POSITIONS = ['before', 'after'] as const
-const MENU_POPOVER_PROPS = {portal: true, tone: 'default'} as const
+const MENU_GROUP_POPOVER_PROPS = {portal: true, tone: 'default', placement: 'left'} as const
 
 export const CellItem = React.forwardRef(function ItemCell(
   props: ItemLayoutProps,
@@ -236,6 +236,7 @@ export const CellItem = React.forwardRef(function ItemCell(
           <MenuButton
             button={<Button padding={2} mode="bleed" icon={EllipsisVerticalIcon} />}
             id={`${id}-menuButton`}
+            portal
             menu={
               <Menu>
                 {!readOnly && (
@@ -256,11 +257,7 @@ export const CellItem = React.forwardRef(function ItemCell(
                         )
                       }
                       return (
-                        <MenuGroup
-                          text={text}
-                          key={pos}
-                          popover={{...MENU_POPOVER_PROPS, placement: 'left'}}
-                        >
+                        <MenuGroup text={text} key={pos} popover={MENU_GROUP_POPOVER_PROPS}>
                           {insertableTypes.map((insertableType) => (
                             <MenuItem
                               key={insertableType.name}
