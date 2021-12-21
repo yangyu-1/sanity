@@ -1,6 +1,6 @@
 import {FieldPresence, FormFieldPresence} from '@sanity/base/presence'
 import React, {useCallback, useMemo} from 'react'
-import {Box, Card, CardTone, Flex} from '@sanity/ui'
+import {Box, Button, Card, Menu, Flex, MenuButton, MenuItem, MenuGroup} from '@sanity/ui'
 import {FormFieldValidationStatus} from '@sanity/base/components'
 import {
   Marker,
@@ -9,12 +9,20 @@ import {
   isValidationErrorMarker,
   isValidationWarningMarker,
 } from '@sanity/types'
+import {
+  TrashIcon,
+  EllipsisVerticalIcon,
+  CopyIcon as DuplicateIcon,
+  InsertAboveIcon,
+  InsertBelowIcon,
+} from '@sanity/icons'
+import {useId} from '@reach/auto-id'
 import {DragHandle} from '../common/DragHandle'
 import PatchEvent, {set} from '../../../PatchEvent'
 import {ItemWithMissingType} from '../ArrayOfObjectsInput/item/ItemWithMissingType'
 import {FormBuilderInput} from '../../../FormBuilderInput'
-import {ConfirmDeleteButton} from '../ArrayOfObjectsInput/ConfirmDeleteButton'
 import getEmptyValue from './getEmptyValue'
+import {PrimitiveValue} from './types'
 
 const dragHandle = <DragHandle paddingX={1} paddingY={3} />
 
@@ -22,6 +30,8 @@ type Props = {
   type?: SchemaType
   onChange: (event: PatchEvent) => void
   onRemove: (item: number) => void
+  onInsert: (pos: 'before' | 'after', index: number, item: PrimitiveValue) => void
+  insertableTypes: SchemaType[]
   onEnterKey: (item: number) => void
   onEscapeKey: (item: number) => void
   onFocus: (path: Path) => void
@@ -36,6 +46,9 @@ type Props = {
   level: number
   presence: FormFieldPresence[]
 }
+
+const POSITIONS = ['before', 'after'] as const
+const MENU_GROUP_POPOVER_PROPS = {portal: true, tone: 'default', placement: 'left'} as const
 
 export const ItemRow = React.forwardRef(function ItemRow(
   props: Props,
@@ -53,6 +66,8 @@ export const ItemRow = React.forwardRef(function ItemRow(
     onFocus,
     onChange,
     onBlur,
+    insertableTypes,
+    onInsert,
     onRemove,
     focusPath,
     markers,
@@ -70,6 +85,17 @@ export const ItemRow = React.forwardRef(function ItemRow(
   const handleRemove = useCallback(() => {
     onRemove(index)
   }, [index, onRemove])
+
+  const handleInsert = useCallback(
+    (pos: 'before' | 'after', insertType: SchemaType) => {
+      onInsert(pos, index, getEmptyValue(insertType))
+    },
+    [index, onInsert]
+  )
+
+  const handleDuplicate = useCallback(() => {
+    onInsert('after', index, value)
+  }, [index, onInsert, value])
 
   const handleKeyPress = useCallback(
     (event: React.KeyboardEvent) => {
@@ -123,6 +149,8 @@ export const ItemRow = React.forwardRef(function ItemRow(
     return undefined
   }, [hasError, hasWarning])
 
+  const id = useId()
+
   return (
     <Card tone={tone} radius={2} paddingX={1} paddingY={2}>
       <Flex align={type ? 'flex-end' : 'center'} ref={ref}>
@@ -170,9 +198,55 @@ export const ItemRow = React.forwardRef(function ItemRow(
             </Box>
           )}
 
-          {!readOnly && onRemove && (
+          {!readOnly && (
             <Box paddingY={1}>
-              <ConfirmDeleteButton placement="left" title="Remove item" onConfirm={handleRemove} />
+              <MenuButton
+                button={<Button padding={2} mode="bleed" icon={EllipsisVerticalIcon} />}
+                id={`${id}-menuButton`}
+                portal
+                popover={{portal: true, tone: 'default'}}
+                menu={
+                  <Menu>
+                    {!readOnly && (
+                      <>
+                        <MenuItem
+                          text="Remove"
+                          tone="critical"
+                          icon={TrashIcon}
+                          onClick={handleRemove}
+                        />
+                        <MenuItem text="Duplicate" icon={DuplicateIcon} onClick={handleDuplicate} />
+                        {POSITIONS.map((pos) => {
+                          const icon = pos === 'before' ? InsertAboveIcon : InsertBelowIcon
+                          const text = `Add item ${pos}`
+                          if (insertableTypes.length === 1) {
+                            return (
+                              <MenuItem
+                                key={pos}
+                                text={text}
+                                icon={icon}
+                                onClick={() => handleInsert(pos, insertableTypes[0])}
+                              />
+                            )
+                          }
+                          return (
+                            <MenuGroup text={text} key={pos} popover={MENU_GROUP_POPOVER_PROPS}>
+                              {insertableTypes.map((insertableType) => (
+                                <MenuItem
+                                  key={insertableType.name}
+                                  icon={insertableType.icon}
+                                  text={insertableType.title}
+                                  onClick={() => handleInsert(pos, insertableType)}
+                                />
+                              ))}
+                            </MenuGroup>
+                          )
+                        })}
+                      </>
+                    )}
+                  </Menu>
+                }
+              />
             </Box>
           )}
         </Flex>
