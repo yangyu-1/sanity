@@ -39,6 +39,29 @@ function insertAfter<T>(index: number, arr: T[], item: T): T[] {
   return copy
 }
 
+function findNearestIndex<T>(
+  index: number,
+  array: T[],
+  predicate: (item: T, index: number) => boolean
+) {
+  let lowerIdx = index
+  let upperIdx = index + 1
+  const len = array.length
+  while (lowerIdx > -1 || upperIdx < len) {
+    const upper = array[upperIdx]
+    if (upperIdx < len && predicate(upper, upperIdx)) {
+      return upperIdx
+    }
+    const lower = array[lowerIdx]
+    if (lowerIdx > -1 && predicate(lower, lowerIdx)) {
+      return lowerIdx
+    }
+    lowerIdx--
+    upperIdx++
+  }
+  return -1
+}
+
 export interface Props {
   type: ArraySchemaType<PrimitiveValue>
   value: PrimitiveValue[]
@@ -56,7 +79,7 @@ export interface Props {
 type Focusable = {focus: () => void}
 
 export class ArrayOfPrimitivesInput extends React.PureComponent<Props> {
-  _element: Focusable | null = null
+  _element: HTMLElement | null = null
   _lastAddedIndex = -1
 
   set(nextValue: PrimitiveValue[]) {
@@ -138,7 +161,7 @@ export class ArrayOfPrimitivesInput extends React.PureComponent<Props> {
     )
   }
 
-  setElement = (el: Focusable | null) => {
+  setElement = (el: HTMLElement | null) => {
     this._element = el
   }
 
@@ -155,6 +178,58 @@ export class ArrayOfPrimitivesInput extends React.PureComponent<Props> {
     // Background: https://github.com/facebook/react/issues/6410#issuecomment-671915381
     if (event.currentTarget === event.target && event.currentTarget === this._element) {
       this.props.onFocus([])
+    }
+  }
+
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    const {focusPath: prevFocusPath = [], value: prevValue = []} = prevProps
+    const {focusPath = [], value = []} = this.props
+    if (prevFocusPath[0] === focusPath[0] && prevValue.length !== value.length) {
+      // the length of the array has changed, but the focus path has not, which may happen if someone inserts or removes a new item above the one currently in focus
+      const focusIndex = focusPath[0]
+
+      // the length of the array has changed, but the focus path has not, which may happen if someone inserts or removes a new item above the one currently in focus
+      const selection = window.getSelection()
+      if (!(selection.focusNode instanceof HTMLElement)) {
+        return null
+      }
+
+      const input = selection.focusNode?.querySelector('input,textarea')
+
+      return input instanceof HTMLInputElement
+        ? {
+            prevFocusedIndex: focusIndex,
+            restoreSelection: {
+              text: selection.toString(),
+              start: input.selectionStart,
+              end: input.selectionEnd,
+              value: input.value,
+            },
+          }
+        : {}
+    }
+
+    return null
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (snapshot && snapshot.restoreSelection) {
+      const prevFocusedValue = prevProps.value[snapshot.prevFocusedIndex]
+
+      const nearestIndex = findNearestIndex(snapshot.prevFocusedIndex, this.props.value, (v) => {
+        return v === prevFocusedValue
+      })
+      if (nearestIndex === -1) {
+        return
+      }
+      const newInput = this._element.querySelector(
+        `[data-item-index='${nearestIndex}'] input,textarea`
+      )
+      if (newInput instanceof HTMLInputElement) {
+        newInput.focus()
+        newInput.setSelectionRange(snapshot.restoreSelection.start, snapshot.restoreSelection.end)
+      }
+      this.props.onFocus([nearestIndex])
     }
   }
 
@@ -213,9 +288,10 @@ export class ArrayOfPrimitivesInput extends React.PureComponent<Props> {
                     // (hashing the item value would impact performance, and it's common to have duplicate values)
                     // This is a "best effort"-attempt at making sure we don't re-use internal state for item inputs
                     // when items gets added or removed to the array
+
                     const key = memberType.name + String(index) + String(value.length)
                     return (
-                      <Item key={key} index={index} isSortable={isSortable}>
+                      <Item key={key} index={index} data-item-index={index} isSortable={isSortable}>
                         <ConditionalReadOnlyField
                           readOnly={readOnly || this.getMemberType(resolveTypeName(item))?.readOnly}
                           value={item}
