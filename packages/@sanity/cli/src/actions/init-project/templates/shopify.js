@@ -5,6 +5,7 @@ export const dependencies = {
   'lodash.get': '^4.4.2',
   pluralize: '^8.0.0',
   'sanity-plugin-dashboard-widget-shopify': '^0.1.8',
+  'sanity-plugin-hotspot-array': '^0.0.8',
   'sanity-plugin-media': '^1.4.10',
   slug: '^5.3.0',
 }
