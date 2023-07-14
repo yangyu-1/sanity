@@ -69,7 +69,13 @@ export const FieldActionMenu = memo(function FieldActionMenu(props: FieldActionM
   )
 
   const rootStyle = useMemo(
-    () => ({height: 25, lineHeight: 0, display: open || focused || hovered ? undefined : 'none'}),
+    () => ({
+      //
+      // border: '1px solid red',
+      height: 25,
+      lineHeight: 0,
+      display: open || focused || hovered ? undefined : 'none',
+    }),
     [focused, hovered, open]
   )
 
@@ -108,7 +114,8 @@ const RootFieldActionMenuNode = memo(function RootFieldActionMenuNode(props: {
         icon={node.icon}
         // Do not show tooltip if menu is open
         label={open ? undefined : node.title}
-        mode={supportsTouch ? 'bleed' : 'ghost'}
+        // mode={supportsTouch ? 'bleed' : 'ghost'}
+        mode="bleed"
         onClick={node.onAction}
         padding={2}
         tooltip={STATUS_BUTTON_TOOLTIP_PROPS}
@@ -141,7 +148,8 @@ function RootFieldActionMenuGroup(props: {
           fontSize={1}
           icon={node.icon}
           label={open ? undefined : node.title}
-          mode={supportsTouch ? 'bleed' : 'ghost'}
+          // mode={supportsTouch ? 'bleed' : 'ghost'}
+          mode="bleed"
           padding={2}
           tooltip={STATUS_BUTTON_TOOLTIP_PROPS}
         />

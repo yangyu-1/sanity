@@ -69,15 +69,17 @@ function FieldWrapper(props: {
   return (
     <Stack style={debug ? {outline: '1px dashed rgba(255, 0, 255, 0.5)'} : undefined}>
       <Box
-        padding={3}
         style={{
+          height: '23px',
           position: 'relative',
           background: debug ? 'rgba(255, 0, 255, 0.2)' : undefined,
         }}
         data-presence-wrapper
       >
         {presence && presence.length > 0 && (
-          <div style={{position: 'absolute', left: 0, top: 0}}>
+          <div
+          // style={{position: 'absolute', left: 0, top: 0}}
+          >
             <FieldPresence presence={presence} maxAvatars={4} />
           </div>
         )}
@@ -158,6 +160,9 @@ export function FormProvider(props: FormProviderProps) {
   )
   const renderField = useCallback(
     (fieldProps: Omit<FieldProps, 'renderDefault'>) => {
+      if (fieldProps.schemaType.jsonType === 'object') {
+        return <Field {...fieldProps} />
+      }
       return (
         <FieldWrapper presence={fieldProps.presence} debug={debug}>
           <Field {...fieldProps} />

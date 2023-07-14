@@ -4,6 +4,7 @@ import type {User} from '@sanity/types'
 import {useUser} from '../../store'
 import {isRecord} from '../../util'
 import {useUserColor} from '../../user-color'
+import styled from 'styled-components'
 
 /**
  * @hidden
@@ -76,6 +77,13 @@ function TooltipUserAvatar(props: Omit<UserAvatarProps, 'user'> & {user: User}) 
   )
 }
 
+const CustomAvatar = styled(Avatar)`
+  transform: scale(0.85);
+  ellipse:first-of-type {
+    stroke-width: 0;
+  }
+`
+
 const StaticUserAvatar = forwardRef(function StaticUserAvatar(
   props: Omit<UserAvatarProps, 'user'> & {user: User},
   ref: React.ForwardedRef<HTMLDivElement>
@@ -86,7 +94,7 @@ const StaticUserAvatar = forwardRef(function StaticUserAvatar(
   const imageUrl = imageLoadError ? undefined : user?.imageUrl
 
   return (
-    <Avatar
+    <CustomAvatar
       animateArrowFrom={animateArrowFrom}
       arrowPosition={position}
       color={userColor.name}

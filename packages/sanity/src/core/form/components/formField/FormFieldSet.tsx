@@ -190,9 +190,13 @@ export const FormFieldSet = forwardRef(function FormFieldSet(
         $borderLeft={level > 0}
         hidden={collapsed}
         marginTop={1}
-        paddingLeft={level === 0 ? 0 : 3}
+        // paddingLeft={level === 0 ? 0 : 4}
+        // paddingLeft={level === 0 ? 0 : 3}
         onFocus={typeof tabIndex === 'number' && tabIndex > -1 ? handleFocus : undefined}
         ref={forwardedRef}
+        style={{
+          paddingLeft: level === 0 ? 0 : '1rem',
+        }}
         tabIndex={tabIndex}
       >
         {!collapsed && content}

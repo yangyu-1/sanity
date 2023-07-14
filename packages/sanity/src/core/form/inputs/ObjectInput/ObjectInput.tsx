@@ -88,7 +88,6 @@ export const ObjectInput = memo(function ObjectInput(props: ObjectInputProps) {
           />
         </FieldGroupTabsWrapper>
       ) : null}
-
       {columns ? (
         <Grid columns={columns} gap={4} marginTop={1}>
           {renderObjectMembers()}
@@ -96,7 +95,6 @@ export const ObjectInput = memo(function ObjectInput(props: ObjectInputProps) {
       ) : (
         renderObjectMembers()
       )}
-
       {renderedUnknownFields}
     </Stack>
   )

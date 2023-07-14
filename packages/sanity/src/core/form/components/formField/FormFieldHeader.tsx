@@ -33,9 +33,12 @@ export interface FormFieldHeaderProps {
 }
 
 const Root = styled(Flex)({
+  // background: 'rgba(255, 0, 0, 0.05)',
   // This prevents the buttons from taking up extra vertical space in the flex layout,
   // due to their default vertical alignment being baseline.
   lineHeight: 1,
+  paddingRight: '4.5rem',
+  position: 'relative',
 })
 
 export const FormFieldHeader = memo(function FormFieldHeader(props: FormFieldHeaderProps) {
@@ -66,7 +69,16 @@ export const FormFieldHeader = memo(function FormFieldHeader(props: FormFieldHea
       )} */}
 
       {actions && (
-        <Box flex="none" marginLeft={3}>
+        <Box
+          flex="none"
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            marginTop: '-0.1rem',
+            // bottom: '100%',
+          }}
+        >
           {actions}
         </Box>
       )}
