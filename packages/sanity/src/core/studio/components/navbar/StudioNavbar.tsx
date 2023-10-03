@@ -31,6 +31,7 @@ import {WorkspaceMenuButton} from './workspace'
 import {ConfigIssuesButton} from './configIssues/ConfigIssuesButton'
 import {LogoButton} from './LogoButton'
 import {SearchDialog, SearchField} from './search'
+import {NotificationsButton} from './notifications/NotificationsStatusButton'
 import {SearchProvider} from './search/contexts/search/SearchProvider'
 import {ResourcesButton} from './resources/ResourcesButton'
 import {RouterState, useRouterState, useStateLink} from 'sanity/router'
@@ -102,6 +103,7 @@ export function StudioNavbar() {
       configIssues: mediaIndex > 1 && isDev,
       workspaces: mediaIndex >= 3 && workspaces.length > 1,
       tools: mediaIndex >= 3,
+      notifications: mediaIndex > 1,
     }),
     [mediaIndex, workspaces.length],
   )
@@ -221,10 +223,13 @@ export function StudioNavbar() {
           )}
 
           <Flex gap={2}>
-            {(shouldRender.configIssues || shouldRender.resources) && (
+            {(shouldRender.configIssues ||
+              shouldRender.notifications ||
+              shouldRender.resources) && (
               <Card borderRight>
                 <Flex gap={1} paddingX={2}>
                   {shouldRender.configIssues && <ConfigIssuesButton />}
+                  {shouldRender.notifications && <NotificationsButton />}
                   {shouldRender.resources && <ResourcesButton />}
                 </Flex>
               </Card>

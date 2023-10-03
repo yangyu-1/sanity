@@ -25,6 +25,7 @@ import {
 } from './screens'
 import {WorkspaceLoader} from './workspaceLoader'
 import {WorkspacesProvider} from './workspaces'
+import {NotificationsProvider} from './NotificationsProvider'
 
 Refractor.registerLanguage(bash)
 Refractor.registerLanguage(javascript)
@@ -53,7 +54,9 @@ export function StudioProvider({
 }: StudioProviderProps) {
   const _children = (
     <WorkspaceLoader LoadingComponent={LoadingScreen} ConfigErrorsComponent={ConfigErrorsScreen}>
-      <ResourceCacheProvider>{children}</ResourceCacheProvider>
+      <ResourceCacheProvider>
+        <NotificationsProvider>{children}</NotificationsProvider>
+      </ResourceCacheProvider>
     </WorkspaceLoader>
   )
 
