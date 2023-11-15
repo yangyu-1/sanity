@@ -86,6 +86,7 @@ export function PortableTextInput(props: PortableTextInputProps): ReactNode {
   const {
     editorRef: editorRefProp,
     elementProps,
+    fullscreen: fullscreenProp,
     hotkeys,
     markers = EMPTY_ARRAY,
     onChange,
@@ -125,7 +126,7 @@ export function PortableTextInput(props: PortableTextInputProps): ReactNode {
   const {t} = useTranslation()
   const [ignoreValidationError, setIgnoreValidationError] = useState(false)
   const [invalidValue, setInvalidValue] = useState<InvalidValue | null>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(fullscreenProp || false)
   const [isActive, setIsActive] = useState(false)
   const [isOffline, setIsOffline] = useState(false)
   const [hasFocusWithin, setHasFocusWithin] = useState(false)
@@ -141,18 +142,20 @@ export function PortableTextInput(props: PortableTextInputProps): ReactNode {
   const patches$ = useMemo(() => patchSubject.asObservable(), [patchSubject])
 
   const handleToggleFullscreen = useCallback(() => {
-    setIsFullscreen((v) => {
-      const next = !v
-      if (next) {
-        telemetry.log(PortableTextInputExpanded)
-      } else {
-        telemetry.log(PortableTextInputCollapsed)
-      }
+    if (editorRef.current) {
+      setIsFullscreen((v) => {
+        const next = fullscreenProp === undefined ? !v : fullscreenProp
+        if (next) {
+          telemetry.log(PortableTextInputExpanded)
+        } else {
+          telemetry.log(PortableTextInputCollapsed)
+        }
 
-      onFullScreenChange?.(next)
-      return next
-    })
-  }, [onFullScreenChange, telemetry])
+        onFullScreenChange?.(next)
+        return next
+      })
+    }
+  }, [editorRef, fullscreenProp, onFullScreenChange, telemetry])
 
   // Reset invalidValue if new value is coming in from props
   useEffect(() => {
