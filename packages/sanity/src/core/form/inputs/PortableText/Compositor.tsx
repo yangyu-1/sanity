@@ -29,6 +29,7 @@ import {TextBlock} from './text'
 
 interface InputProps extends ArrayOfObjectsInputProps<PortableTextBlock> {
   hasFocusWithin: boolean
+  hideToolbar?: boolean
   hotkeys?: HotkeyOptions
   isActive: boolean
   isFullscreen: boolean
@@ -52,6 +53,7 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
     focused,
     focusPath = EMPTY_ARRAY,
     hasFocusWithin,
+    hideToolbar,
     hotkeys,
     isActive,
     isFullscreen,
@@ -389,6 +391,7 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
       <Editor
         ariaDescribedBy={ariaDescribedBy}
         initialSelection={initialSelection}
+        hideToolbar={hideToolbar}
         hotkeys={editorHotkeys}
         isActive={isActive}
         isFullscreen={isFullscreen}
@@ -424,6 +427,7 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
       editorRenderAnnotation,
       editorRenderBlock,
       editorRenderChild,
+      hideToolbar,
       initialSelection,
       scrollElement,
     ],
