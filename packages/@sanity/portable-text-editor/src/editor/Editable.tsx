@@ -38,6 +38,7 @@ import {
   type OnCopyFn,
   type OnPasteFn,
   type OnPasteResult,
+  type PortableTextSlateEditor,
   type RangeDecoration,
   type RenderAnnotationFunction,
   type RenderBlockFunction,

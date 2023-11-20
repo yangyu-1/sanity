@@ -3,6 +3,7 @@ import {
   type HotkeyOptions,
   type OnCopyFn,
   type OnPasteFn,
+  type RangeDecoration,
   PortableTextEditable,
   type RangeDecoration,
   type RenderAnnotationFunction,

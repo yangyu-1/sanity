@@ -111,6 +111,7 @@ export interface PortableTextSlateEditor extends ReactEditor {
   isTextSpan: (value: unknown) => value is PortableTextSpan
   isListBlock: (value: unknown) => value is PortableTextListBlock
   subscriptions: (() => () => void)[]
+  nodeToRangeDecorations?: Map<Node, Range[]>
 
   /**
    * Increments selected list items levels, or decrements them if `reverse` is true.
