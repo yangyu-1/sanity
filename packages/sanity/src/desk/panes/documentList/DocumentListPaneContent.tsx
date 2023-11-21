@@ -56,9 +56,7 @@ function LoadingView(props: {layout?: GeneralPreviewLayoutKey}) {
   return (
     <Stack padding={2} space={1}>
       {SKELETON_ITEMS.map((num) => (
-        <Card padding={2} key={num}>
-          <SanityDefaultPreview isPlaceholder layout={layout} />
-        </Card>
+        <SanityDefaultPreview isPlaceholder layout={layout} key={num} />
       ))}
     </Stack>
   )

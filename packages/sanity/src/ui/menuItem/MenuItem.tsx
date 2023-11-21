@@ -11,7 +11,7 @@ import {
 import React, {createElement, forwardRef, isValidElement, useMemo} from 'react'
 import {isValidElementType} from 'react-is'
 import styled from 'styled-components'
-import {PREVIEW_MEDIA_SIZE} from '../../core/components/previews/constants'
+import {PREVIEW_SIZES} from '../../core/components/previews/constants'
 
 const FONT_SIZE = 1
 
@@ -41,8 +41,8 @@ export type MenuItemProps = Pick<
   }
 
 const PreviewWrapper = styled.div`
-  height: ${PREVIEW_MEDIA_SIZE.default.height}px;
-  width: ${PREVIEW_MEDIA_SIZE.default.width}px;
+  height: ${PREVIEW_SIZES.default.media.height}px;
+  width: ${PREVIEW_SIZES.default.media.width}px;
   display: flex;
   align-items: center;
   justify-content: center;

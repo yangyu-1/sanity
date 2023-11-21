@@ -377,8 +377,6 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
             documentId={value?._ref}
             documentType={refType?.name}
             disabled={resolvingInitialValue}
-            paddingX={2}
-            paddingY={1}
             __unstable_focusRing
             selected={selected}
             pressed={pressed}

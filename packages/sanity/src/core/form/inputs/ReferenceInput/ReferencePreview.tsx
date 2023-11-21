@@ -1,11 +1,12 @@
 import React, {useMemo} from 'react'
 import {ObjectSchemaType} from '@sanity/types'
-import {Badge, Box, Flex, Inline} from '@sanity/ui'
+import {Badge, Box, Inline} from '@sanity/ui'
 import {DocumentStatus} from '../../../../ui/documentStatus'
 import {RenderPreviewCallback} from '../../types'
 import {PreviewLayoutKey} from '../../../components'
 import {useDocumentPresence} from '../../../store'
 import {DocumentPreviewPresence} from '../../../presence'
+import {useDocumentStatusTimeAgo} from '../../../hooks'
 import {ReferenceInfo} from './types'
 
 /**
@@ -42,33 +43,43 @@ export function ReferencePreview(props: {
     [previewId, refType.name],
   )
 
+  const {draft, published} = preview
+  const tooltipLabel = useDocumentStatusTimeAgo({
+    draftUpdatedAt: draft && '_updatedAt' in draft ? draft._updatedAt : '',
+    publishedUpdatedAt: published && '_updatedAt' in published ? published._updatedAt : '',
+  })
+
   const previewProps = useMemo(
     () => ({
+      children: (
+        <Box paddingLeft={3}>
+          <Inline space={3}>
+            {showTypeLabel && <Badge mode="outline">{refType.title}</Badge>}
+
+            {documentPresence && documentPresence.length > 0 && (
+              <DocumentPreviewPresence presence={documentPresence} />
+            )}
+
+            <DocumentStatus draft={preview.draft} published={preview.published} />
+          </Inline>
+        </Box>
+      ),
       layout,
       schemaType: refType,
+      tooltipLabel,
       value: previewStub,
     }),
-    [layout, previewStub, refType],
+    [
+      documentPresence,
+      layout,
+      preview.draft,
+      preview.published,
+      previewStub,
+      refType,
+      showTypeLabel,
+      tooltipLabel,
+    ],
   )
 
-  return (
-    <Flex align="center">
-      <Box flex={1}>{renderPreview(previewProps)}</Box>
-
-      <Box paddingLeft={3}>
-        <Inline space={3}>
-          {showTypeLabel && <Badge mode="outline">{refType.title}</Badge>}
-
-          {documentPresence && documentPresence.length > 0 && (
-            <DocumentPreviewPresence presence={documentPresence} />
-          )}
-
-          <Inline space={4}>
-            <DocumentStatus document={preview.published} type="published" />
-            <DocumentStatus document={preview.draft} type="draft" />
-          </Inline>
-        </Inline>
-      </Box>
-    </Flex>
-  )
+  return renderPreview(previewProps)
 }

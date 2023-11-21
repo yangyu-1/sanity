@@ -338,8 +338,6 @@ export function ReferenceField(props: ReferenceFieldProps) {
                       documentId={value?._ref}
                       documentType={refType?.name}
                       flex={1}
-                      paddingX={2}
-                      paddingY={1}
                       pressed={pressed}
                       radius={2}
                       ref={elementRef}

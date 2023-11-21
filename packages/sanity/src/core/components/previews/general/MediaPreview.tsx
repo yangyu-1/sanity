@@ -1,10 +1,10 @@
 import React, {useMemo} from 'react'
 import {getDevicePixelRatio} from 'use-device-pixel-ratio'
-import {Text} from '@sanity/ui'
+import {Box, Text} from '@sanity/ui'
 import {TooltipWithNodes} from '../../../../ui'
 import {CircularProgress} from '../../progress'
 import {Media} from '../_common/Media'
-import {PREVIEW_MEDIA_SIZE} from '../constants'
+import {PREVIEW_SIZES} from '../constants'
 import {PreviewMediaDimensions, PreviewProps} from '../types'
 import {renderPreviewNode} from '../helpers'
 import {
@@ -21,7 +21,7 @@ import {
 export type MediaPreviewProps = Omit<PreviewProps<'media'>, 'renderDefault'>
 
 const DEFAULT_MEDIA_DIMENSIONS: PreviewMediaDimensions = {
-  ...PREVIEW_MEDIA_SIZE.media,
+  ...PREVIEW_SIZES.media.media,
   aspect: 1,
   fit: 'crop',
   dpr: getDevicePixelRatio(),
@@ -70,33 +70,40 @@ export function MediaPreview(props: MediaPreviewProps) {
   }, [subtitle, title])
 
   return (
-    <RootBox data-testid="media-preview" overflow="hidden" flex={1}>
-      <div style={STYLES_PADDER} />
+    <Box padding={2}>
+      <RootBox data-testid="media-preview" flex={1} overflow="hidden">
+        <div style={STYLES_PADDER} />
 
-      <TooltipWithNodes content={tooltipContent} disabled={!tooltipContent} placement="top" portal>
-        <MediaFlex>
-          {isPlaceholder ? (
-            <MediaSkeleton />
-          ) : (
-            <Media
-              border={withBorder}
-              dimensions={mediaDimensions}
-              layout="media"
-              media={media as any}
-              radius={withRadius ? 1 : 0}
-              responsive
-            />
-          )}
+        <TooltipWithNodes
+          content={tooltipContent}
+          disabled={!tooltipContent}
+          placement="top"
+          portal
+        >
+          <MediaFlex>
+            {isPlaceholder ? (
+              <MediaSkeleton />
+            ) : (
+              <Media
+                border={withBorder}
+                dimensions={mediaDimensions}
+                layout="media"
+                media={media as any}
+                radius={withRadius ? 1 : 0}
+                responsive
+              />
+            )}
 
-          {typeof progress === 'number' && progress > -1 && (
-            <ProgressFlex>
-              <CircularProgress value={progress} />
-            </ProgressFlex>
-          )}
-        </MediaFlex>
-      </TooltipWithNodes>
+            {typeof progress === 'number' && progress > -1 && (
+              <ProgressFlex>
+                <CircularProgress value={progress} />
+              </ProgressFlex>
+            )}
+          </MediaFlex>
+        </TooltipWithNodes>
 
-      {children}
-    </RootBox>
+        {children}
+      </RootBox>
+    </Box>
   )
 }

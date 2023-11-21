@@ -7,7 +7,7 @@ import {InlinePreview} from '../portableText/InlinePreview'
 import {Button} from '../../../../ui'
 import {BlockPreview} from '../portableText/BlockPreview'
 import {BlockImagePreview} from '../portableText/BlockImagePreview'
-import {PREVIEW_MEDIA_SIZE} from '../constants'
+import {PREVIEW_SIZES} from '../constants'
 
 const MEDIA_OPTIONS: Record<string, string> = {
   None: 'none',
@@ -53,7 +53,7 @@ export default function PortableTextPreviewStory() {
   const status = useBoolean('Status', false)
 
   const media = useMemo(() => {
-    const {width, height} = layout ? PREVIEW_MEDIA_SIZE[layout] : PREVIEW_MEDIA_SIZE.default
+    const {width, height} = layout ? PREVIEW_SIZES[layout].media : PREVIEW_SIZES.default.media
 
     if (mediaKey === 'image') {
       return <img src={`https://source.unsplash.com/${width * 2}x${height * 2}/?abstract`} />

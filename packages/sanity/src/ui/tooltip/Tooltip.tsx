@@ -36,7 +36,7 @@ export const Tooltip = forwardRef(function Tooltip(
   props: TooltipProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {content, hotkeys, ...rest} = props
+  const {content, hotkeys, placement = 'bottom', portal = true, ...rest} = props
 
   return (
     <UITooltip
@@ -53,8 +53,9 @@ export const Tooltip = forwardRef(function Tooltip(
       }
       delay={TOOLTIP_DELAY_PROPS}
       fallbackPlacements={TOOLTIP_FALLBACK_PLACEMENTS}
+      portal={portal}
       ref={ref}
-      placement="bottom"
+      placement={placement}
       {...rest}
     />
   )

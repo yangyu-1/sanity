@@ -15,6 +15,7 @@ import {
   getPreviewValueWithFallback,
   SanityDefaultPreview,
   isRecord,
+  useDocumentStatusTimeAgo,
 } from 'sanity'
 
 export interface PaneItemPreviewProps {
@@ -26,6 +27,13 @@ export interface PaneItemPreviewProps {
   value: SanityDocument
 }
 
+/**
+ * Preview component for _documents_ rendered in desk/structure panes.
+ *
+ * Note that non-document previews are not handled by this component,
+ * despite being pane items! Non-document previews bypass this entirely
+ * and are rendered by `<SanityDefaultPreview>`.
+ */
 export function PaneItemPreview(props: PaneItemPreviewProps) {
   const {icon, layout, presence, schemaType, value} = props
   const title =
@@ -46,11 +54,15 @@ export function PaneItemPreview(props: PaneItemPreviewProps) {
     <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
       <Inline space={4}>
         {presence && presence.length > 0 && <DocumentPreviewPresence presence={presence} />}
-        <DocumentStatus document={published} type="published" />
-        <DocumentStatus document={draft} type="draft" />
+        <DocumentStatus draft={draft} published={published} />
       </Inline>
     </TooltipDelayGroupProvider>
   )
+
+  const tooltipLabel = useDocumentStatusTimeAgo({
+    draftUpdatedAt: draft && '_updatedAt' in draft ? draft._updatedAt : '',
+    publishedUpdatedAt: published && '_updatedAt' in published ? published._updatedAt : '',
+  })
 
   return (
     <SanityDefaultPreview
@@ -59,6 +71,7 @@ export function PaneItemPreview(props: PaneItemPreviewProps) {
       icon={icon}
       layout={layout}
       status={status}
+      tooltipLabel={tooltipLabel}
     />
   )
 }

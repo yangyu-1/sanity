@@ -1,53 +1,53 @@
-import {EditIcon, PublishIcon} from '@sanity/icons'
 import {PreviewValue, SanityDocument} from '@sanity/types'
-import {ButtonTone} from '@sanity/ui'
+import {Box, ButtonTone, Flex} from '@sanity/ui'
 import React from 'react'
-import {Tooltip} from '..'
-import {TextWithTone, useTimeAgo} from 'sanity'
-
-type DocumentStatusType = 'draft' | 'published'
-
-interface DocumentStatusTypeOptions {
-  activePrefix: string
-  icon: React.ComponentType
-  tone: ButtonTone
-  inactiveMessage: string
-}
-
-const DOCUMENT_STATUS: Record<DocumentStatusType, DocumentStatusTypeOptions> = {
-  draft: {
-    activePrefix: 'Edited',
-    icon: EditIcon,
-    tone: 'caution',
-    inactiveMessage: 'No published edits',
-  },
-  published: {
-    activePrefix: 'Published',
-    icon: PublishIcon,
-    tone: 'positive',
-    inactiveMessage: 'Not published',
-  },
-}
+import styled, {css} from 'styled-components'
+import {useTimeAgo} from 'sanity'
 
 export interface DocumentStatusProps {
-  document?: PreviewValue | Partial<SanityDocument> | null
-  type: DocumentStatusType
+  draft?: PreviewValue | Partial<SanityDocument> | null
+  published?: PreviewValue | Partial<SanityDocument> | null
 }
 
-export function DocumentStatus({document, type}: DocumentStatusProps) {
-  const updatedAt = document && '_updatedAt' in document && document._updatedAt
+const SIZE = 4 // px
 
-  const lastUpdatedTimeAgo = useTimeAgo(updatedAt || '', {minimal: true, agoSuffix: true})
-  const label = document
-    ? `${DOCUMENT_STATUS[type].activePrefix} ${lastUpdatedTimeAgo}`
-    : DOCUMENT_STATUS[type].inactiveMessage
-  const Icon = DOCUMENT_STATUS[type].icon
+const Dot = styled(Box)<{$draft?: boolean; $published: boolean}>(({theme, $draft, $published}) => {
+  let tone: ButtonTone = 'default'
+  if ($published) {
+    tone = $draft ? 'caution' : 'positive'
+  }
+
+  const color = theme.sanity.color.solid[tone].enabled.bg
+
+  return css`
+    background: ${$published ? color : 'var(--card-muted-fg-color)'};
+    border: ${$published ? `1px solid ${color}` : '1px solid var(--card-muted-fg-color)'};
+    border-radius: ${SIZE}px;
+    height: ${SIZE}px;
+    opacity: ${$published ? 1 : 0.25};
+    width: ${SIZE}px;
+  `
+})
+
+export function DocumentStatus({draft, published}: DocumentStatusProps) {
+  const publishDate = published && '_updatedAt' in published && published._updatedAt
+  const publishedTimeAgo = useTimeAgo(publishDate || '', {minimal: true, agoSuffix: true})
+
+  if ((!draft && !published) || (!draft && published)) {
+    return null
+  }
+
+  let label
+  if (draft && !published) {
+    label = 'Unpublished'
+  }
+  if (draft && published) {
+    label = `Published ${publishedTimeAgo} (edited)`
+  }
 
   return (
-    <Tooltip content={label} portal>
-      <TextWithTone tone={DOCUMENT_STATUS[type].tone} size={1} dimmed={!document} muted={!document}>
-        <Icon aria-label={label} />
-      </TextWithTone>
-    </Tooltip>
+    <Flex align="center" height="fill" justify="center">
+      <Dot aria-label={label} $draft={!!draft} $published={!!published} />
+    </Flex>
   )
 }
