@@ -66,6 +66,7 @@ export interface RenderPortableTextInputEditableProps extends PortableTextEditab
  */
 export function PortableTextInput(props: PortableTextInputProps) {
   const {
+    active: activeProp,
     editorRef: editorRefProp,
     elementProps,
     fullscreen: fullscreenProp,
@@ -108,7 +109,7 @@ export function PortableTextInput(props: PortableTextInputProps) {
   const [ignoreValidationError, setIgnoreValidationError] = useState(false)
   const [invalidValue, setInvalidValue] = useState<InvalidValue | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(fullscreenProp || false)
-  const [isActive, setIsActive] = useState(false)
+  const [isActive, setIsActive] = useState(activeProp || false)
   const [isOffline, setIsOffline] = useState(false)
   const [hasFocusWithin, setHasFocusWithin] = useState(false)
   const telemetry = useTelemetry()
@@ -162,12 +163,15 @@ export function PortableTextInput(props: PortableTextInputProps) {
 
   const portableTextMemberItems = usePortableTextMemberItemsFromProps(props)
 
-  // Set active if focused within the editor
+  // Set active if focused within the editor, or activeProp is changed
   useEffect(() => {
     if (hasFocusWithin) {
       setIsActive(true)
     }
-  }, [hasFocusWithin])
+    if (activeProp !== undefined) {
+      setIsActive(true)
+    }
+  }, [activeProp, hasFocusWithin])
 
   // Report focus on spans with `.text` appended to the reported focusPath.
   // This is done to support the Presentation tool which uses this kind of paths to refer to texts.
