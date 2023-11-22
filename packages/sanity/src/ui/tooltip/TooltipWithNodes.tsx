@@ -22,6 +22,7 @@ export const TooltipWithNodes = forwardRef(function Tooltip(
 ) {
   return (
     <UITooltip
+      animate
       arrow={false}
       boundaryElement={null}
       delay={TOOLTIP_DELAY_PROPS}

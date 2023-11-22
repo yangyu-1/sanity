@@ -57,6 +57,7 @@ export const Dialog = forwardRef(function Dialog(
   return (
     <UIDialog
       {...props}
+      animate
       ref={ref}
       footer={
         (footer?.confirmButton || footer?.cancelButton) && (

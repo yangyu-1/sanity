@@ -40,6 +40,7 @@ export const Tooltip = forwardRef(function Tooltip(
 
   return (
     <UITooltip
+      animate
       arrow={false}
       boundaryElement={null}
       content={
