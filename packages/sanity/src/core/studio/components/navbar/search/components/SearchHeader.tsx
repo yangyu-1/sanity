@@ -103,10 +103,11 @@ export const SearchHeader = forwardRef<HTMLInputElement, SearchHeaderProps>(func
         <Box flex={1}>
           <CustomTextInput
             __unstable_disableFocusRing
+            $background={fullscreen}
+            $smallClearButton={fullscreen}
             aria-label={ariaInputLabel}
             autoFocus
             autoComplete="off"
-            background={fullscreen}
             border={false}
             clearButton={!!query}
             fontSize={1}
@@ -116,7 +117,6 @@ export const SearchHeader = forwardRef<HTMLInputElement, SearchHeaderProps>(func
             placeholder="Search"
             radius={2}
             ref={ref}
-            smallClearButton={fullscreen}
             spellCheck={false}
             value={query}
           />
