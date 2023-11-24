@@ -71,7 +71,7 @@ export function RowLayout(props: RowLayoutProps) {
           <Box flex={1}>{children}</Box>
 
           {(presence || validation || menu) && (
-            <Flex align="center" marginLeft={1}>
+            <Flex align="center" marginLeft={1} style={{lineHeight: 0}}>
               {presence && <Box marginLeft={1}>{presence}</Box>}
               {validation && <Box marginLeft={1}>{validation}</Box>}
               {menu}

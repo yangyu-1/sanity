@@ -328,7 +328,7 @@ export function ReferenceField(props: ReferenceFieldProps) {
           ) : (
             <Card shadow={1} radius={1} padding={1} tone={tone}>
               <Stack space={1}>
-                <Flex gap={1} align="center">
+                <Flex gap={1} align="center" style={{lineHeight: 0}}>
                   <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
                     <ReferenceLinkCard
                       __unstable_focusRing
