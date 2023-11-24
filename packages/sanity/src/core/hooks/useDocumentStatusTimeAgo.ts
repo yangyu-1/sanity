@@ -8,9 +8,11 @@ import {useTimeAgo} from './useTimeAgo'
  */
 export function useDocumentStatusTimeAgo({
   draftUpdatedAt,
+  hidePublishedDate,
   publishedUpdatedAt,
 }: {
   draftUpdatedAt?: string
+  hidePublishedDate?: boolean
   publishedUpdatedAt?: string
 }): string | undefined {
   const updatedDateTimeAgo = useTimeAgo(draftUpdatedAt || '', {minimal: true, agoSuffix: true})
@@ -18,13 +20,13 @@ export function useDocumentStatusTimeAgo({
 
   let label
   if (!draftUpdatedAt && publishedTimeAgo) {
-    label = `Published ${publishedTimeAgo}`
+    label = `Published${hidePublishedDate ? '' : ` ${publishedTimeAgo}`}`
   }
   if (draftUpdatedAt && !publishedTimeAgo) {
     label = `Not published`
   }
   if (draftUpdatedAt && publishedTimeAgo) {
-    label = `Published ${publishedTimeAgo}`
+    label = `Published${hidePublishedDate ? '' : ` ${publishedTimeAgo}`}`
   }
   if (label && updatedDateTimeAgo) {
     label += ` (Updated ${updatedDateTimeAgo})`

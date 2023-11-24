@@ -80,7 +80,6 @@ export const DocumentPanelHeader = memo(
     return (
       <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
         <PaneHeader
-          borderBottom
           ref={ref}
           loading={!ready}
           title={<DocumentHeaderTitle />}

@@ -1,10 +1,11 @@
-import {Box, Flex, useElementRect} from '@sanity/ui'
+import {Box, Flex, Text, useElementRect} from '@sanity/ui'
 import React, {useEffect, useMemo, useState, memo, useLayoutEffect} from 'react'
 import {useDocumentPane} from '../../useDocumentPane'
+import {DocumentStatus} from '../../../../../ui/documentStatus'
 import {DocumentBadges} from './DocumentBadges'
-import {PublishStatus} from './PublishStatus'
+// import {PublishStatus} from './PublishStatus'
 import {ReviewChangesButton} from './ReviewChangesButton'
-import {useSyncState, useTimelineSelector} from 'sanity'
+import {useDocumentStatusTimeAgo, useSyncState, useTimelineSelector} from 'sanity'
 
 const SYNCING_TIMEOUT = 1000
 const SAVED_TIMEOUT = 3000
@@ -87,6 +88,7 @@ export const DocumentSparkline = memo(function DocumentSparkline() {
     ],
   )
 
+  /*
   const publishStatus = useMemo(
     () =>
       (liveEdit || published) && (
@@ -102,14 +104,27 @@ export const DocumentSparkline = memo(function DocumentSparkline() {
       ),
     [collapsed, lastPublished, lastUpdated, liveEdit, published, showingRevision],
   )
+  */
+
+  const statusTimeAgo = useDocumentStatusTimeAgo({
+    draftUpdatedAt: editState?.draft?._updatedAt,
+    hidePublishedDate: true,
+    publishedUpdatedAt: editState?.published?._updatedAt,
+  })
 
   return (
-    <Flex align="center" data-ui="DocumentSparkline" ref={setRootFlexElement}>
-      {publishStatus}
+    <Flex align="center" data-ui="DocumentSparkline" paddingLeft={2} ref={setRootFlexElement}>
+      {/* {publishStatus} */}
+      <Flex align="center" gap={3}>
+        <DocumentStatus draft={editState?.draft} published={editState?.published} showTick />
+        <Text muted size={1} weight="medium">
+          {statusTimeAgo}
+        </Text>
+      </Flex>
 
       <Flex align="center" flex={1}>
-        {reviewButton}
-        {!collapsed && (
+        {/* {reviewButton} */}
+        {statusTimeAgo && !collapsed && (
           <Box marginLeft={3}>
             <DocumentBadges />
           </Box>

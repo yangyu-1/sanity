@@ -5,25 +5,11 @@ interface RootProps {
   $borderBottom?: boolean
 }
 
-export const Root = styled(Layer)<RootProps>(({$borderBottom = true}) => {
-  return css`
-    line-height: 0;
-    position: sticky;
-    top: 0;
-
-    &:not([data-collapsed]):after {
-      content: '';
-      display: block;
-      position: absolute;
-      left: 0px;
-      right: 0px;
-      bottom: -1px;
-      border-bottom: 1px solid ${$borderBottom ? 'var(--card-shadow-outline-color)' : 'transparent'};
-      opacity: 1;
-      transition: border-color 200ms ease-in;
-    }
-  `
-})
+export const Root = styled(Layer)<RootProps>`
+  line-height: 0;
+  position: sticky;
+  top: 0;
+`
 
 export const Layout = styled(Flex)`
   transform-origin: calc(51px / 2);

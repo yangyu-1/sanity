@@ -2,11 +2,13 @@ import {PreviewValue, SanityDocument} from '@sanity/types'
 import {Box, ButtonTone, Flex} from '@sanity/ui'
 import React from 'react'
 import styled, {css} from 'styled-components'
-import {useTimeAgo} from 'sanity'
+import {TextWithTone, useTimeAgo} from 'sanity'
+import {CheckmarkIcon} from '@sanity/icons'
 
 export interface DocumentStatusProps {
   draft?: PreviewValue | Partial<SanityDocument> | null
   published?: PreviewValue | Partial<SanityDocument> | null
+  showTick?: boolean // todo: rename, ya doofus
 }
 
 const SIZE = 4 // px
@@ -29,11 +31,11 @@ const Dot = styled(Box)<{$draft?: boolean; $published: boolean}>(({theme, $draft
   `
 })
 
-export function DocumentStatus({draft, published}: DocumentStatusProps) {
+export function DocumentStatus({draft, published, showTick}: DocumentStatusProps) {
   const publishDate = published && '_updatedAt' in published && published._updatedAt
   const publishedTimeAgo = useTimeAgo(publishDate || '', {minimal: true, agoSuffix: true})
 
-  if ((!draft && !published) || (!draft && published)) {
+  if ((!draft && !published) || (!draft && published && !showTick)) {
     return null
   }
 
@@ -43,6 +45,15 @@ export function DocumentStatus({draft, published}: DocumentStatusProps) {
   }
   if (draft && published) {
     label = `Published ${publishedTimeAgo} (edited)`
+  }
+
+  // refactor
+  if (!draft && published && showTick) {
+    return (
+      <TextWithTone size={1} tone="positive">
+        <CheckmarkIcon />
+      </TextWithTone>
+    )
   }
 
   return (

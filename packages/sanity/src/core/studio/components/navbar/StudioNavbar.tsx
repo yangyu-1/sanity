@@ -167,7 +167,14 @@ export function StudioNavbar() {
 
   return (
     <RootLayer zOffset={100} data-search-open={searchFullscreenOpen}>
-      <RootCard borderBottom data-testid="navbar" data-ui="Navbar" padding={2} sizing="border">
+      <RootCard
+        borderBottom
+        data-testid="navbar"
+        data-ui="Navbar"
+        padding={2}
+        sizing="border"
+        // tone="transparent"
+      >
         <NavGrid>
           {/** Left flex */}
           <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
