@@ -65,6 +65,7 @@ const FieldActionsFloatingCard = styled(Card)(({theme}: {theme: Theme}) => {
     padding: ${space}px;
     position: absolute;
     right: 0;
+    transition: opacity 150ms ease;
 
     @media (hover: hover) {
       // If hover is supported, we hide the floating card by default
@@ -124,6 +125,7 @@ const FieldActionsFloatingCard = styled(Card)(({theme}: {theme: Theme}) => {
 
 const FieldActionsFlex = styled(Flex)`
   gap: inherit;
+  transition: opacity 150ms ease;
 `
 
 const MAX_AVATARS = 4
@@ -249,9 +251,7 @@ export function FormFieldBaseHeader(props: FormFieldBaseHeaderProps) {
             display="flex"
             onBlurCapture={handleBlurCapture}
             onFocusCapture={handleFocusCapture}
-            radius={2}
             ref={setFloatingCardElement}
-            shadow={2}
             sizing="border"
           >
             {hasActions && (
