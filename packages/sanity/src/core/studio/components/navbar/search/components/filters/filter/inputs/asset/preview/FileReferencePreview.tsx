@@ -1,6 +1,6 @@
 import {BinaryDocumentIcon} from '@sanity/icons'
 import type {FileAsset, ReferenceValue} from '@sanity/types'
-import {Card, Flex, LabelSkeleton, Stack, Text} from '@sanity/ui'
+import {Card, Flex, Stack, Text, TextSkeleton} from '@sanity/ui'
 import React, {useCallback} from 'react'
 import {formatBytes} from '../../../../../../../../../../form/inputs/common/helper'
 import {observeFileAsset} from '../../../../../../../../../../form/studio/inputs/client-adapters/assets'
@@ -60,8 +60,8 @@ function FileSkeleton() {
           </Text>
         </Card>
         <Stack flex={1} space={2} marginLeft={3}>
-          <LabelSkeleton animated style={{width: '100%'}} radius={1} />
-          <LabelSkeleton animated style={{width: '100%'}} radius={1} />
+          <TextSkeleton animated style={{width: '100%'}} radius={1} />
+          <TextSkeleton animated style={{width: '100%'}} radius={1} />
         </Stack>
       </Flex>
     </Card>
