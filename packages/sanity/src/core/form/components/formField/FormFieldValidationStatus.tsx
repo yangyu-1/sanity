@@ -67,12 +67,7 @@ const StyledStack = styled(Stack)`
 
 /** @internal */
 export function FormFieldValidationStatus(props: FormFieldValidationStatusProps) {
-  const {
-    validation = EMPTY_ARRAY,
-    __unstable_showSummary: showSummary,
-    fontSize,
-    placement = 'top',
-  } = props
+  const {validation = EMPTY_ARRAY, __unstable_showSummary: showSummary, fontSize, placement} = props
 
   const errors = validation.filter((v) => v.level === 'error')
   const warnings = validation.filter((v) => v.level === 'warning')

@@ -40,7 +40,7 @@ export const FormFieldHeaderText = memo(function FormFieldHeaderText(
 
         {hasValidations && (
           <Box marginLeft={2}>
-            <FormFieldValidationStatus fontSize={1} validation={validation} />
+            <FormFieldValidationStatus fontSize={1} placement="top" validation={validation} />
           </Box>
         )}
       </Flex>

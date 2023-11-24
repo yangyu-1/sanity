@@ -20,15 +20,16 @@ export const TooltipWithNodes = forwardRef(function Tooltip(
   props: TooltipWithNodesProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const {placement, ...rest} = props
   return (
     <UITooltip
       animate
       arrow={false}
       boundaryElement={null}
       delay={TOOLTIP_DELAY_PROPS}
-      placement="bottom"
+      placement={placement || 'bottom'}
       ref={ref}
-      {...props}
+      {...rest}
     />
   )
 })
