@@ -157,7 +157,6 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
         tone="inherit"
         radius={2}
         disabled={resolvingInitialValue}
-        padding={1}
         onClick={onOpen}
         ref={previewCardRef}
         onFocus={onFocus}
