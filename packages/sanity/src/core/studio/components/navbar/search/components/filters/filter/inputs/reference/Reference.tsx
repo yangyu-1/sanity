@@ -67,9 +67,9 @@ export function SearchFilterReferenceInput({
         <Stack space={3}>
           <Card padding={1} radius={1} shadow={1}>
             <SearchResultItem
-              compact
               documentId={value._ref}
               documentType={value._type}
+              layout="compact"
               onClick={handleClick}
             />
           </Card>

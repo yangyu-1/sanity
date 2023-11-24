@@ -128,10 +128,10 @@ export const ReferenceAutocomplete = forwardRef(function ReferenceAutocomplete(
     const documentType = option.hit.hit._type
     return (
       <SearchResultItem
-        compact
         disableIntentLink
         documentId={option.value}
         documentType={documentType}
+        layout="compact"
       />
     )
   }, [])
@@ -159,6 +159,7 @@ export const ReferenceAutocomplete = forwardRef(function ReferenceAutocomplete(
                   )}
             </div>
           }
+          fallbackPlacements={['bottom', 'bottom-end']}
           matchReferenceWidth
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}

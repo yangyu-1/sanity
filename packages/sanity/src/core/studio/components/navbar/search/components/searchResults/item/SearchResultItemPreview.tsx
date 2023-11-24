@@ -11,9 +11,11 @@ import {
   SanityDefaultPreview,
 } from '../../../../../../../preview'
 import {DocumentPresence, useDocumentPreviewStore} from '../../../../../../../store'
+import {GeneralPreviewLayoutKey} from '../../../../../../../components'
 
 interface SearchResultItemPreviewProps {
   documentId: string
+  layout?: GeneralPreviewLayoutKey
   presence?: DocumentPresence[]
   schemaType: SchemaType
 }
@@ -32,6 +34,7 @@ const SearchResultItemPreviewBox = styled(Box)`
 
 export default function SearchResultItemPreview({
   documentId,
+  layout,
   presence,
   schemaType,
 }: SearchResultItemPreviewProps) {
@@ -70,7 +73,7 @@ export default function SearchResultItemPreview({
           value: sanityDocument,
         })}
         isPlaceholder={isLoading ?? true}
-        layout="default"
+        layout={layout || 'default'}
         icon={schemaType.icon}
         status={status}
       />
