@@ -97,6 +97,7 @@ export function FileActionsMenu(props: Props) {
         onClick={onClick}
         flex={1}
       >
+        {/* todo: consider replacing with <SanityDefaultPreview> */}
         <Flex wrap="nowrap" align="center">
           <Card padding={3} tone="transparent" shadow={1} radius={1}>
             <Text muted={muted}>
@@ -104,7 +105,13 @@ export function FileActionsMenu(props: Props) {
             </Text>
           </Card>
           <Stack flex={1} space={2} marginLeft={3}>
-            <Text size={2} textOverflow="ellipsis" muted={muted} data-testid="file-name">
+            <Text
+              size={1}
+              textOverflow="ellipsis"
+              muted={muted}
+              data-testid="file-name"
+              weight="medium"
+            >
               {originalFilename}
             </Text>
             <Text size={1} muted data-testid="file-size">

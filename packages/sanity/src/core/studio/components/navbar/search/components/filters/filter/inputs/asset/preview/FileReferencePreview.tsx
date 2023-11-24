@@ -29,6 +29,7 @@ export function FileReferencePreview({reference}: FileReferencePreviewProps) {
 }
 
 function FilePreview({asset}: {asset: FileAsset}) {
+  // todo: consider replacing with <SanityDefaultPreview>
   return (
     <Card padding={2} shadow={1}>
       <Flex align="center" justify="space-between" wrap="nowrap">
@@ -38,7 +39,7 @@ function FilePreview({asset}: {asset: FileAsset}) {
           </Text>
         </Card>
         <Stack flex={1} space={2} marginLeft={3}>
-          <Text size={2} textOverflow="ellipsis" muted>
+          <Text muted size={1} textOverflow="ellipsis" weight="medium">
             {asset?.originalFilename || asset._id}
           </Text>
           <Text size={1} muted>
