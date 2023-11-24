@@ -54,7 +54,7 @@ export const MediaWrapper = styled.span<{
       This is why we use the "*:not(svg) + span" selector to target only that
       situation to render the shadow.
     */
-    & *:not(svg) + span {
+    & span {
       display: block;
       position: absolute;
       left: 0;

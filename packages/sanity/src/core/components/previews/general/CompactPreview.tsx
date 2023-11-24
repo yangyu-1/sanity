@@ -71,7 +71,12 @@ export function CompactPreview(props: CompactPreviewProps) {
     >
       <Flex align="center" flex={1} gap={2}>
         {media && (
-          <Media dimensions={DEFAULT_MEDIA_DIMENSIONS} layout="compact" media={media as any} />
+          <Media
+            border={false}
+            dimensions={DEFAULT_MEDIA_DIMENSIONS}
+            layout="compact"
+            media={media as any}
+          />
         )}
         <Stack data-testid="compact-preview__header" flex={1} space={2}>
           <Text size={1} style={{color: 'inherit'}} textOverflow="ellipsis" weight="medium">
