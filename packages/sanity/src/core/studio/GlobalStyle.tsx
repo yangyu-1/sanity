@@ -31,6 +31,11 @@ export const GlobalStyle = createGlobalStyle(({theme}) => {
       background-color: ${color.base.bg};
     }
 
+    body * {
+      scrollbar-width: thin;
+      scrollbar-color: ${color.muted.transparent.disabled.fg} transparent;
+    }
+
     #sanity {
       font-family: ${fonts.text.family};
     }
