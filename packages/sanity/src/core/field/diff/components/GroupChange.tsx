@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react'
-import {Box, Grid, Stack, Text, useClickOutside} from '@sanity/ui'
+import {Box, Grid, Popover, Stack, Text, useClickOutside} from '@sanity/ui'
 import {Button} from '../../../../ui'
 import {useDocumentOperation} from '../../../hooks'
 import {undoChange} from '../changes/undoChange'
@@ -14,7 +14,7 @@ import {useDocumentPairPermissions} from '../../../store'
 import {ChangeBreadcrumb} from './ChangeBreadcrumb'
 import {ChangeResolver} from './ChangeResolver'
 import {RevertChangesButton} from './RevertChangesButton'
-import {ChangeListWrapper, GroupChangeContainer, PopoverWrapper} from './GroupChange.styled'
+import {ChangeListWrapper, GroupChangeContainer} from './GroupChange.styled'
 
 /** @internal */
 export function GroupChange(
@@ -90,7 +90,7 @@ export function GroupChange(
             ))}
           </Stack>
           {isComparingCurrent && !isPermissionsLoading && permissions?.granted && (
-            <PopoverWrapper
+            <Popover
               content={
                 <Stack space={1}>
                   <Box padding={1}>
@@ -117,7 +117,7 @@ export function GroupChange(
                   data-testid={`group-change-revert-button-${group.fieldsetName}`}
                 />
               </Box>
-            </PopoverWrapper>
+            </Popover>
           )}
         </Stack>
       ),

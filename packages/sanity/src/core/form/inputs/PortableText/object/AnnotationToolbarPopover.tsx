@@ -1,14 +1,7 @@
 import React, {useState, useRef, useMemo, useEffect, useCallback} from 'react'
 import {Box, Flex, Popover, PopoverProps, Text, useGlobalKeyDown, useTheme} from '@sanity/ui'
-import styled from 'styled-components'
 import {EditIcon, TrashIcon} from '@sanity/icons'
 import {Button} from '../../../../../ui'
-
-const ToolbarPopover = styled(Popover)`
-  &[data-popper-reference-hidden='true'] {
-    display: none !important;
-  }
-`
 
 const POPOVER_FALLBACK_PLACEMENTS: PopoverProps['fallbackPlacements'] = ['top', 'bottom']
 
@@ -146,7 +139,7 @@ export function AnnotationToolbarPopover(props: AnnotationToolbarPopoverProps) {
   }
 
   return (
-    <ToolbarPopover
+    <Popover
       open={popoverOpen}
       floatingBoundary={floatingBoundary}
       constrainSize

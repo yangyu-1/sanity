@@ -1,4 +1,4 @@
-import {Box, Card, Grid, Stack, Text, useClickOutside} from '@sanity/ui'
+import {Box, Card, Grid, Popover, Stack, Text, useClickOutside} from '@sanity/ui'
 import {RevertIcon} from '@sanity/icons'
 import React, {useCallback, useContext, useMemo, useState} from 'react'
 import {SanityDocument} from '@sanity/client'
@@ -14,7 +14,7 @@ import {useDocumentOperation} from '../../../hooks'
 import {Button} from '../../../../ui'
 import {ChangeResolver} from './ChangeResolver'
 import {NoChanges} from './NoChanges'
-import {ChangeListWrapper, PopoverWrapper} from './ChangeList.styled'
+import {ChangeListWrapper} from './ChangeList.styled'
 
 /** @internal */
 export interface ChangeListProps {
@@ -114,7 +114,7 @@ export function ChangeList({diff, fields, schemaType}: ChangeListProps): React.R
         </Stack>
 
         {showFooter && isComparingCurrent && !isPermissionsLoading && permissions?.granted && (
-          <PopoverWrapper
+          <Popover
             content={
               <Stack space={1}>
                 <Box padding={1}>
@@ -146,7 +146,7 @@ export function ChangeList({diff, fields, schemaType}: ChangeListProps): React.R
                 disabled={isReadOnly}
               />
             </Stack>
-          </PopoverWrapper>
+          </Popover>
         )}
       </Stack>
     </Card>

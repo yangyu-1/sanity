@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react'
-import {Box, Grid, Stack, Text, useClickOutside} from '@sanity/ui'
+import {Box, Grid, Popover, Stack, Text, useClickOutside} from '@sanity/ui'
 import {ObjectSchemaType} from '@sanity/types'
 import {useDocumentOperation} from '../../../hooks'
 import {Button} from '../../../../ui'
@@ -14,7 +14,7 @@ import {DiffInspectWrapper} from './DiffInspectWrapper'
 import {FallbackDiff} from './FallbackDiff'
 import {RevertChangesButton} from './RevertChangesButton'
 import {ValueError} from './ValueError'
-import {FieldChangeContainer, DiffBorder, PopoverWrapper} from './FieldChange.styled'
+import {FieldChangeContainer, DiffBorder} from './FieldChange.styled'
 
 /** @internal */
 export function FieldChange(
@@ -105,7 +105,7 @@ export function FieldChange(
               )}
 
               {isComparingCurrent && !isPermissionsLoading && permissions?.granted && (
-                <PopoverWrapper
+                <Popover
                   content={
                     <Stack space={1}>
                       <Box padding={1}>
@@ -141,7 +141,7 @@ export function FieldChange(
                       data-testid={`single-change-revert-button-${change?.key}`}
                     />
                   </Box>
-                </PopoverWrapper>
+                </Popover>
               )}
             </DiffInspectWrapper>
           </FieldWrapper>

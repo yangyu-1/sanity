@@ -1,14 +1,7 @@
 import React, {useRef, useCallback, useMemo} from 'react'
 import {Box, Inline, Popover, PopoverProps, Text, useGlobalKeyDown, useTheme} from '@sanity/ui'
-import styled from 'styled-components'
 import {EditIcon, TrashIcon} from '@sanity/icons'
 import {Button} from '../../../../../ui'
-
-const ToolbarPopover = styled(Popover)`
-  &[data-popper-reference-hidden='true'] {
-    display: none !important;
-  }
-`
 
 const POPOVER_FALLBACK_PLACEMENTS: PopoverProps['fallbackPlacements'] = ['top', 'bottom']
 
@@ -107,7 +100,7 @@ export function InlineObjectToolbarPopover(props: InlineObjectToolbarPopoverProp
   )
 
   return (
-    <ToolbarPopover
+    <Popover
       constrainSize
       content={popoverContent}
       fallbackPlacements={POPOVER_FALLBACK_PLACEMENTS}
