@@ -5,7 +5,7 @@ export const DOCUMENT_PANEL_MIN_WIDTH = 320
 export const DOCUMENT_PANEL_INITIAL_MIN_WIDTH = 600
 
 export const DOCUMENT_INSPECTOR_MIN_WIDTH = 320
-export const DOCUMENT_INSPECTOR_MAX_WIDTH = 540
+export const DOCUMENT_INSPECTOR_MAX_WIDTH = 480
 
 export const EMPTY_PARAMS: NonNullable<PaneRouterContextValue['params']> = {}
 

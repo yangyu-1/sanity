@@ -37,7 +37,7 @@ export function DocumentInspectorHeader(
 
   return (
     <Root {...restProps} as={forwardedAs}>
-      <Flex padding={2}>
+      <Flex padding={1}>
         <Box flex={1} padding={3}>
           <Text as="h1" size={1} weight="medium">
             {title}

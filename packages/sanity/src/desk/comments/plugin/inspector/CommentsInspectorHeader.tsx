@@ -5,7 +5,7 @@ import React, {forwardRef, useCallback} from 'react'
 import styled from 'styled-components'
 import {MenuItem, Button} from '../../../../ui'
 import {CommentStatus} from '../../src'
-import {BetaBadge} from 'sanity'
+// import {BetaBadge} from 'sanity'
 
 const Root = styled(Card)({
   position: 'relative',
@@ -20,7 +20,6 @@ const Root = styled(Card)({
     bottom: -1,
     right: 0,
     borderBottom: '1px solid var(--card-border-color)',
-    opacity: 0.5,
   },
 })
 
@@ -41,16 +40,16 @@ export const CommentsInspectorHeader = forwardRef(function CommentsInspectorHead
 
   return (
     <Root ref={ref}>
-      <Flex padding={2}>
-        <Flex align="center" flex={1} gap={2} paddingY={2} padding={3}>
+      <Flex padding={1}>
+        <Flex align="center" flex={1} gap={2} padding={3}>
           <Text as="h1" size={1} weight="medium">
             Comments
           </Text>
 
-          <BetaBadge />
+          {/* <BetaBadge /> */}
         </Flex>
 
-        <Flex flex="none" padding={1} gap={2}>
+        <Flex flex="none" gap={2} padding={1}>
           <MenuButton
             id="comment-status-menu-button"
             button={

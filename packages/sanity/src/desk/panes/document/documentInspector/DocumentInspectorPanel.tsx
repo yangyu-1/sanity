@@ -1,10 +1,10 @@
 import React, {ReactElement, createElement, useCallback} from 'react'
-import {Box} from '@sanity/ui'
+import {Box, Card, Flex} from '@sanity/ui'
 import {usePane} from '../../../components'
 import {useDeskTool} from '../../../useDeskTool'
 import {DOCUMENT_INSPECTOR_MAX_WIDTH, DOCUMENT_INSPECTOR_MIN_WIDTH} from '../constants'
 import {useDocumentPane} from '../useDocumentPane'
-import {Resizable} from './Resizable'
+// import {Resizable} from './Resizable'
 
 interface DocumentInspectorPanelProps {
   documentId: string
@@ -31,16 +31,38 @@ export function DocumentInspectorPanel(props: DocumentInspectorPanelProps): Reac
   })
 
   if (features.resizablePanes) {
+    /*
     return (
       <Resizable
         as="aside"
         data-ui="DocumentInspectorPanel"
         flex={flex}
+        height="fill"
         maxWidth={DOCUMENT_INSPECTOR_MAX_WIDTH}
         minWidth={DOCUMENT_INSPECTOR_MIN_WIDTH}
       >
-        {element}
+        <Flex height="fill" flex={1} marginX={3}>
+          <Card border flex={1} overflow="hidden" radius={3}>
+            {element}
+          </Card>
+        </Flex>
       </Resizable>
+    )
+    */
+    return (
+      <Flex
+        height="fill"
+        flex={1}
+        marginX={3}
+        style={{
+          maxWidth: DOCUMENT_INSPECTOR_MAX_WIDTH,
+          minWidth: DOCUMENT_INSPECTOR_MIN_WIDTH,
+        }}
+      >
+        <Card border flex={1} overflow="hidden" radius={3}>
+          {element}
+        </Card>
+      </Flex>
     )
   }
 

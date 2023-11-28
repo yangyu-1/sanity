@@ -25,13 +25,12 @@ const FooterCard = styled(Card)({
     top: -1,
     right: 0,
     borderBottom: '1px solid var(--card-border-color)',
-    opacity: 0.5,
   },
 })
 
 export function CommentsInspectorFeedbackFooter() {
   return (
-    <FooterCard padding={3}>
+    <FooterCard paddingX={4} paddingY={3}>
       <Text muted size={1}>
         Help improve comments.{' '}
         <Link href={FEEDBACK_FORM_LINK} target="_blank" rel="noreferrer">

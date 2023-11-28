@@ -59,7 +59,7 @@ export function ChangesInspector(props: DocumentInspectorProps): ReactElement {
   )
 
   return (
-    <Flex data-testid="review-changes-pane" direction="column" height="fill" overflow="hidden">
+    <Flex data-testid="review-changes-pane" direction="column" height="fill">
       <DocumentInspectorHeader
         as="header"
         closeButtonLabel="Close review changes"
