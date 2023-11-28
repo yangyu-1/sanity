@@ -1,5 +1,5 @@
 import {hues} from '@sanity/color'
-import {createColorTheme, rgba, ThemeColorSchemes} from '@sanity/ui'
+import {createColorTheme, rgba, ThemeColorSchemes} from '@sanity/ui/theme'
 import {_multiply, _screen, _isDark} from './helpers'
 import {LegacyPalette} from './palette'
 import {LegacyTones} from './tones'
@@ -101,7 +101,7 @@ export function buildColor(
           bg,
           border: blend(base.bg, tints[200]),
           fg: blend(base.bg, buttonTones.bg),
-          iconColor: blend(base.bg, buttonTones.bg),
+          icon: blend(base.bg, buttonTones.bg),
           muted: {
             fg: blend(base.bg, tints[50]),
           },
@@ -130,7 +130,7 @@ export function buildColor(
           bg,
           border: blend(base.bg, tints[600]),
           fg: blend(base.bg, buttonTones.bg),
-          iconColor: blend(base.bg, buttonTones.bg),
+          icon: blend(base.bg, buttonTones.bg),
           muted: {
             fg: blend(base.bg, tints[200]),
           },
@@ -159,7 +159,7 @@ export function buildColor(
           bg,
           border: blend(base.bg, tints[800]),
           fg: blend(base.bg, buttonTones.bg),
-          iconColor: blend(base.bg, buttonTones.bg),
+          icon: blend(base.bg, buttonTones.bg),
           muted: {
             fg: blend(base.bg, tints[200]),
           },
@@ -192,7 +192,7 @@ export function buildColor(
           bg,
           border: blend(base.bg, tints[800]),
           fg: blend(base.bg, buttonTones.bg),
-          iconColor: blend(base.bg, buttonTones.bg),
+          icon: blend(base.bg, buttonTones.bg),
           muted: {
             fg: blend(base.bg, tints[200]),
           },
@@ -220,7 +220,7 @@ export function buildColor(
         bg,
         border: blend(base.bg, tints[500]),
         fg: blend(base.bg, buttonTones.bg),
-        iconColor: blend(base.bg, buttonTones.bg),
+        icon: blend(base.bg, buttonTones.bg),
         muted: {
           fg: blend(base.bg, tints[100]),
         },
@@ -260,7 +260,7 @@ export function buildColor(
           bg,
           border: blend(base.bg, tints[50]),
           fg: blend(base.bg, tints[200]),
-          iconColor: blend(base.bg, tints[200]),
+          icon: blend(base.bg, tints[200]),
           muted: {
             fg: blend(bg, tints[100]),
           },
@@ -289,7 +289,7 @@ export function buildColor(
           bg,
           border: blend(bg, tints[100]),
           fg: blend(base.bg, tints[900]),
-          iconColor: blend(base.bg, tints[900]),
+          icon: blend(base.bg, tints[900]),
           muted: {
             fg: blend(base.bg, tints[600]),
           },
@@ -322,7 +322,7 @@ export function buildColor(
           bg,
           border: blend(bg, tints[100]),
           fg: blend(base.bg, tints[800]),
-          iconColor: blend(base.bg, tints[800]),
+          icon: blend(base.bg, tints[800]),
           muted: {
             fg: blend(base.bg, tints[600]),
           },
@@ -355,7 +355,7 @@ export function buildColor(
           bg,
           border: blend(bg, tints[100]),
           fg: blend(bg, tints[800]),
-          iconColor: blend(bg, tints[800]),
+          icon: blend(bg, tints[800]),
           muted: {
             fg: blend(bg, tints[600]),
           },
@@ -383,7 +383,7 @@ export function buildColor(
         bg,
         border: blend(bg, tints[100]),
         fg: blend(bg, tints[700]),
-        iconColor: blend(bg, tints[700]),
+        icon: blend(bg, tints[700]),
         muted: {
           fg: blend(bg, tints[600]),
         },
@@ -482,7 +482,7 @@ export function buildColor(
       return {
         bg,
         fg: base.fg,
-        iconColor: base.fg,
+        icon: base.fg,
         border: base.border,
         muted: {
           fg: blend(base.bg, tints[dark ? 400 : 600]),
