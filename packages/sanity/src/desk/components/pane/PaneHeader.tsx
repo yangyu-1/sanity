@@ -55,7 +55,13 @@ export const PaneHeader = forwardRef(function PaneHeader(
       <Root data-collapsed={collapsed ? '' : undefined} data-testid="pane-header" ref={ref}>
         <LegacyLayerProvider zOffset="paneHeader">
           <Card data-collapsed={collapsed ? '' : undefined} tone="inherit">
-            <Layout onClick={handleLayoutClick} padding={2} sizing="border" style={layoutStyle}>
+            <Layout
+              onClick={handleLayoutClick}
+              padding={2}
+              paddingBottom={1}
+              sizing="border"
+              style={layoutStyle}
+            >
               {backButton && (
                 <Box flex="none" padding={1}>
                   {backButton}
@@ -94,7 +100,7 @@ export const PaneHeader = forwardRef(function PaneHeader(
                 overflow="auto"
                 paddingBottom={3}
                 paddingX={3}
-                paddingTop={1}
+                paddingTop={2}
               >
                 <TabsBox flex={1} marginRight={subActions ? 3 : 0}>
                   {tabs}
@@ -104,7 +110,7 @@ export const PaneHeader = forwardRef(function PaneHeader(
               </Flex>
             )}
 
-            {!collapsed && contentAfter && contentAfter}
+            {!collapsed && contentAfter && <Box marginTop={1}>{contentAfter}</Box>}
           </Card>
         </LegacyLayerProvider>
       </Root>
