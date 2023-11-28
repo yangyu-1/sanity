@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react'
-import {Stack, Box, Grid, useClickOutside} from '@sanity/ui'
+import {Box, Grid, Stack, Text, useClickOutside} from '@sanity/ui'
 import {ObjectSchemaType} from '@sanity/types'
 import {useDocumentOperation} from '../../../hooks'
 import {Button} from '../../../../ui'
@@ -107,8 +107,10 @@ export function FieldChange(
               {isComparingCurrent && !isPermissionsLoading && permissions?.granted && (
                 <PopoverWrapper
                   content={
-                    <Box padding={3} sizing="border">
-                      Are you sure you want to revert the changes?
+                    <Stack space={1}>
+                      <Box padding={1}>
+                        <Text size={1}>Are you sure you want to revert these changes?</Text>
+                      </Box>
                       <Grid columns={2} gap={2} marginTop={2}>
                         <Button
                           mode="ghost"
@@ -121,9 +123,10 @@ export function FieldChange(
                           text="Revert change"
                         />
                       </Grid>
-                    </Box>
+                    </Stack>
                   }
                   open={confirmRevertOpen}
+                  padding={3}
                   portal
                   placement="left"
                   ref={setRevertButtonElement}

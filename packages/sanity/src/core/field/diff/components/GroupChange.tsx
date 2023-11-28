@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react'
-import {Box, Stack, Grid, useClickOutside} from '@sanity/ui'
+import {Box, Grid, Stack, Text, useClickOutside} from '@sanity/ui'
 import {Button} from '../../../../ui'
 import {useDocumentOperation} from '../../../hooks'
 import {undoChange} from '../changes/undoChange'
@@ -92,16 +92,18 @@ export function GroupChange(
           {isComparingCurrent && !isPermissionsLoading && permissions?.granted && (
             <PopoverWrapper
               content={
-                <Box>
-                  Are you sure you want to revert the changes?
+                <Stack space={1}>
+                  <Box padding={1}>
+                    <Text size={1}>Are you sure you want to revert these changes?</Text>
+                  </Box>
                   <Grid columns={2} gap={2} marginTop={2}>
                     <Button mode="ghost" onClick={closeRevertChangesConfirmDialog} text="Cancel" />
                     <Button tone="critical" onClick={handleRevertChanges} text="Revert change" />
                   </Grid>
-                </Box>
+                </Stack>
               }
+              padding={3}
               portal
-              padding={4}
               placement={'left'}
               open={confirmRevertOpen}
               ref={setRevertPopoverElement}
