@@ -1,4 +1,4 @@
-import {SelectIcon} from '@sanity/icons'
+import {ClockIcon, SelectIcon} from '@sanity/icons'
 import {Placement, Popover, useClickOutside, useGlobalKeyDown, useToast} from '@sanity/ui'
 import {format} from 'date-fns'
 import {upperFirst} from 'lodash'
@@ -139,7 +139,7 @@ export function TimelineMenu({chunk, mode, placement}: TimelineMenuProps) {
 
   const revLabel = chunk
     ? `${upperFirst(formatTimelineEventLabel(chunk.type))}: ${timeLabel}`
-    : 'Latest version'
+    : undefined
 
   const sinceLabel = chunk ? `Since: ${timeLabel}` : 'Since: unknown version'
 
@@ -158,13 +158,13 @@ export function TimelineMenu({chunk, mode, placement}: TimelineMenuProps) {
       <Button
         disabled={!ready}
         mode="bleed"
-        size="small"
-        iconRight={SelectIcon}
+        iconRight={chunk ? SelectIcon : ClockIcon}
         onClick={open ? handleClose : handleOpen}
         ref={setButton}
         selected={open}
         style={{maxWidth: '100%'}}
-        text={ready ? buttonLabel : 'Loading history'}
+        text={ready ? buttonLabel : undefined}
+        tooltipProps={{content: 'Document history'}}
       />
     </Root>
   )

@@ -1,17 +1,20 @@
-import {ChevronDownIcon} from '@sanity/icons'
-import {Menu, MenuButton, PopoverProps, Text} from '@sanity/ui'
+import {EllipsisHorizontalIcon} from '@sanity/icons'
+import {Menu, MenuButton, MenuDivider, PopoverProps, Text} from '@sanity/ui'
 import React, {useCallback, useRef, useState, useMemo, useId} from 'react'
 import {Button, MenuItem, TooltipWithNodes} from '../../../../ui'
 import {ActionStateDialog} from './ActionStateDialog'
 import {DocumentActionDescription, LegacyLayerProvider} from 'sanity'
+import {_PaneMenuNode} from '../../../components/pane/types'
+import {PaneMenuButtonItem} from '../../../components/pane/PaneMenuButtonItem'
 
 export interface ActionMenuButtonProps {
-  actionStates: DocumentActionDescription[]
+  actionStates?: DocumentActionDescription[]
+  contextMenuNodes?: _PaneMenuNode[]
   disabled: boolean
 }
 
 export function ActionMenuButton(props: ActionMenuButtonProps) {
-  const {actionStates, disabled} = props
+  const {actionStates, contextMenuNodes, disabled} = props
   const idPrefix = useId()
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [actionIndex, setActionIndex] = useState(-1)
@@ -30,7 +33,7 @@ export function ActionMenuButton(props: ActionMenuButtonProps) {
     [],
   )
 
-  const currentAction = actionStates[actionIndex]
+  const currentAction = actionStates && actionStates?.[actionIndex]
 
   return (
     <>
@@ -41,7 +44,7 @@ export function ActionMenuButton(props: ActionMenuButtonProps) {
             data-testid="action-menu-button"
             aria-label="Open document actions"
             disabled={disabled}
-            icon={ChevronDownIcon}
+            icon={EllipsisHorizontalIcon}
             mode="bleed"
             ref={buttonRef}
             tooltipProps={{content: 'Document actions'}}
@@ -49,7 +52,7 @@ export function ActionMenuButton(props: ActionMenuButtonProps) {
         }
         menu={
           <Menu padding={1}>
-            {actionStates.map((actionState, idx) => (
+            {actionStates?.map((actionState, idx) => (
               <ActionMenuListItem
                 actionState={actionState}
                 disabled={disabled}
@@ -59,6 +62,15 @@ export function ActionMenuButton(props: ActionMenuButtonProps) {
                 onAction={handleAction}
               />
             ))}
+            {actionStates &&
+              actionStates?.length > 0 &&
+              contextMenuNodes &&
+              contextMenuNodes?.length > 0 && <MenuDivider />}
+            {contextMenuNodes?.map((node, nodeIndex) => {
+              const isAfterGroup = contextMenuNodes?.[nodeIndex - 1]?.type === 'group'
+
+              return <PaneMenuButtonItem isAfterGroup={isAfterGroup} key={node.key} node={node} />
+            })}
           </Menu>
         }
         popover={popoverProps}

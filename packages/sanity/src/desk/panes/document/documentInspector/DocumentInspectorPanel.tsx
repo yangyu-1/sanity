@@ -51,9 +51,12 @@ export function DocumentInspectorPanel(props: DocumentInspectorPanelProps): Reac
     */
     return (
       <Flex
-        height="fill"
+        // height="fill"
         flex={1}
-        marginX={3}
+        // margin={3}
+        marginBottom={2}
+        marginX={2}
+        marginTop={1}
         style={{
           maxWidth: DOCUMENT_INSPECTOR_MAX_WIDTH,
           minWidth: DOCUMENT_INSPECTOR_MIN_WIDTH,

@@ -15,10 +15,5 @@ export default defineScope({
       title: 'Document badges',
       component: lazy(() => import('./DocumentBadgesStory')),
     },
-    {
-      name: 'review-changes-button',
-      title: 'ReviewChangesButton',
-      component: lazy(() => import('./ReviewChangesButtonStory')),
-    },
   ],
 })

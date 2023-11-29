@@ -313,25 +313,14 @@ function InnerDocumentPane() {
               footerHeight={footerH || null}
               isInspectOpen={inspectOpen}
               rootElement={rootElement}
+              setActionsBoxElement={setActionsBoxElement}
               setDocumentPanelPortalElement={setDocumentPanelPortalElement}
             />
           </StyledChangeConnectorRoot>
         </Flex>
       </DialogProvider>
 
-      {/* These providers are added because we want the dialogs in `DocumentStatusBar` to be scoped to the document pane. */}
-      {/* The portal element comes from `DocumentPanel`. */}
-      <PortalProvider
-        __unstable_elements={{[DOCUMENT_PANEL_PORTAL_ELEMENT]: documentPanelPortalElement}}
-      >
-        <DialogProvider position={DIALOG_PROVIDER_POSITION} zOffset={zOffsets.portal}>
-          <PaneFooter ref={setFooterElement}>
-            <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
-              <DocumentStatusBar actionsBoxRef={setActionsBoxElement} />
-            </TooltipDelayGroupProvider>
-          </PaneFooter>
-        </DialogProvider>
-      </PortalProvider>
+      {/* <DocumentStatusBar /> */}
 
       <DocumentOperationResults />
     </DocumentActionShortcuts>

@@ -1,13 +1,7 @@
 import {ArrowLeftIcon, CloseIcon, SplitVerticalIcon} from '@sanity/icons'
-import {Flex, TooltipDelayGroupProvider} from '@sanity/ui'
+import {Box, Flex, TooltipDelayGroupProvider} from '@sanity/ui'
 import React, {createElement, memo, forwardRef, useMemo} from 'react'
-import {
-  PaneContextMenuButton,
-  PaneHeader,
-  PaneHeaderActionButton,
-  usePane,
-  usePaneRouter,
-} from '../../../../components'
+import {PaneHeader, PaneHeaderActionButton, usePane, usePaneRouter} from '../../../../components'
 import {TimelineMenu} from '../../timeline'
 import {useDocumentPane} from '../../useDocumentPane'
 import {isMenuNodeButton, isNotMenuNodeButton, resolveMenuNodes} from '../../../../menuNodes'
@@ -17,16 +11,26 @@ import {TOOLTIP_DELAY_PROPS} from '../../../../../ui/tooltip/constants'
 import {DocumentHeaderTabs} from './DocumentHeaderTabs'
 import {DocumentHeaderTitle} from './DocumentHeaderTitle'
 import {useFieldActions, useTimelineSelector} from 'sanity'
+import {
+  DocumentStatusBarActions,
+  HistoryStatusBarActions,
+} from '../../statusBar/DocumentStatusBarActions'
+import {DocumentSparkline} from '../../statusBar/sparkline/DocumentSparkline'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface DocumentPanelHeaderProps {}
+export interface DocumentPanelHeaderProps {
+  // @todo: refactor
+  // eslint-disable-next-line react/no-unused-prop-types
+  actionsBoxRef?: React.Ref<HTMLDivElement>
+}
 
 export const DocumentPanelHeader = memo(
   forwardRef(function DocumentPanelHeader(
-    _props: DocumentPanelHeaderProps,
+    props: DocumentPanelHeaderProps,
     ref: React.ForwardedRef<HTMLDivElement>,
   ) {
+    const {actionsBoxRef} = props
     const {
+      badges,
       onMenuAction,
       onPaneClose,
       onPaneSplit,
@@ -77,13 +81,15 @@ export const DocumentPanelHeader = memo(
     // button) do the same thing and shouldn't be shown at the same time)
     const showPaneGroupCloseButton = !showSplitPaneCloseButton && !features.backButton
 
+    // Subscribe to external timeline state changes
+    const showingRevision = useTimelineSelector(timelineStore, (state) => state.onOlderRevision)
+
     return (
       <TooltipDelayGroupProvider delay={TOOLTIP_DELAY_PROPS}>
         <PaneHeader
           ref={ref}
           loading={!ready}
           title={<DocumentHeaderTitle />}
-          tabs={showTabs && <DocumentHeaderTabs />}
           tabIndex={tabIndex}
           backButton={
             features.backButton &&
@@ -98,10 +104,18 @@ export const DocumentPanelHeader = memo(
               />
             )
           }
-          subActions={<TimelineMenu chunk={rev} mode="rev" placement="bottom-end" />}
+          // ACTIONS - top right
           actions={
-            <Flex align="center" gap={1}>
-              {unstable_languageFilter.length > 0 && (
+            <Flex
+              align="center"
+              gap={1}
+              style={{
+                flexShrink: 0,
+                // outline: '1px solid red',
+              }}
+            >
+              {/* Language filter */}
+              {/*unstable_languageFilter.length > 0 && (
                 <>
                   {unstable_languageFilter.map((languageFilterComponent, idx) => {
                     return createElement(languageFilterComponent, {
@@ -111,14 +125,24 @@ export const DocumentPanelHeader = memo(
                     })
                   })}
                 </>
-              )}
+              )*/}
 
-              {menuButtonNodes.map((item) => (
-                <PaneHeaderActionButton key={item.key} node={item} />
-              ))}
+              <Flex align="center" gap={2} marginLeft={6}>
+                {/* Document status */}
+                {!showingRevision && <Box>{badges && <DocumentSparkline />}</Box>}
+                {/* Document history */}
+                <TimelineMenu chunk={rev} mode="rev" placement="bottom-end" />
+              </Flex>
 
-              <PaneContextMenuButton nodes={contextMenuNodes} key="context-menu" />
+              <Box flex={1} ref={actionsBoxRef}>
+                {showingRevision ? (
+                  <HistoryStatusBarActions contextMenuNodes={contextMenuNodes} />
+                ) : (
+                  <DocumentStatusBarActions contextMenuNodes={contextMenuNodes} />
+                )}
+              </Box>
 
+              {/* Split pane */}
               {showSplitPaneButton && (
                 <Button
                   icon={SplitVerticalIcon}
@@ -129,6 +153,7 @@ export const DocumentPanelHeader = memo(
                 />
               )}
 
+              {/* Close button */}
               {showSplitPaneCloseButton && (
                 <Button
                   icon={CloseIcon}
@@ -139,6 +164,7 @@ export const DocumentPanelHeader = memo(
                 />
               )}
 
+              {/* Close pane group */}
               {showPaneGroupCloseButton && (
                 <Button
                   icon={CloseIcon}

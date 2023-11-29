@@ -51,7 +51,12 @@ export function DocumentStatus({draft, published, showTick}: DocumentStatusProps
   if (!draft && published && showTick) {
     return (
       <TextWithTone size={1} tone="positive">
-        <CheckmarkIcon />
+        <CheckmarkIcon
+          style={{
+            // @todo: hack, TextWithTone should handle this
+            color: 'inherit',
+          }}
+        />
       </TextWithTone>
     )
   }

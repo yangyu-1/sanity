@@ -40,8 +40,8 @@ export const CommentsInspectorHeader = forwardRef(function CommentsInspectorHead
 
   return (
     <Root ref={ref}>
-      <Flex padding={1}>
-        <Flex align="center" flex={1} gap={2} padding={3}>
+      <Flex padding={1} paddingY={2}>
+        <Flex align="center" flex={1} gap={2} paddingX={3}>
           <Text as="h1" size={1} weight="medium">
             Comments
           </Text>

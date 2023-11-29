@@ -5,10 +5,11 @@ import {
   usePortal,
   useElementRect,
   Box,
+  TooltipDelayGroupProvider,
 } from '@sanity/ui'
 import React, {createElement, useEffect, useMemo, useRef, useState} from 'react'
 import styled, {css} from 'styled-components'
-import {PaneContent, usePane, usePaneLayout} from '../../../components'
+import {PaneContent, PaneHeaderActionButton, usePane, usePaneLayout} from '../../../components'
 import {useDocumentPane} from '../useDocumentPane'
 import {useDeskTool} from '../../../useDeskTool'
 import {DocumentInspectorPanel} from '../documentInspector'
@@ -18,12 +19,22 @@ import {ReferenceChangedBanner} from './ReferenceChangedBanner'
 import {PermissionCheckBanner} from './PermissionCheckBanner'
 import {FormView} from './documentViews'
 import {DocumentPanelHeader} from './header'
-import {ScrollContainer, useTimelineSelector, VirtualizerScrollInstanceProvider} from 'sanity'
+import {
+  ScrollContainer,
+  useFieldActions,
+  useTimelineSelector,
+  VirtualizerScrollInstanceProvider,
+} from 'sanity'
+import {TOOLTIP_DELAY_PROPS} from '../../../../ui/tooltip/constants'
+import {DocumentStatusBar} from '../statusBar'
+import {DocumentHeaderTabs} from './header/DocumentHeaderTabs'
+import {isMenuNodeButton, resolveMenuNodes} from '../../../menuNodes'
 
 interface DocumentPanelProps {
   footerHeight: number | null
   rootElement: HTMLDivElement | null
   isInspectOpen: boolean
+  setActionsBoxElement: (el: HTMLDivElement | null) => void
   setDocumentPanelPortalElement: (el: HTMLElement | null) => void
 }
 
@@ -46,7 +57,13 @@ const Scroller = styled(ScrollContainer)<{$disabled: boolean}>(({$disabled}) => 
 })
 
 export const DocumentPanel = function DocumentPanel(props: DocumentPanelProps) {
-  const {footerHeight, isInspectOpen, rootElement, setDocumentPanelPortalElement} = props
+  const {
+    footerHeight,
+    isInspectOpen,
+    rootElement,
+    setActionsBoxElement,
+    setDocumentPanelPortalElement,
+  } = props
   const {
     activeViewId,
     displayed,
@@ -58,11 +75,14 @@ export const DocumentPanel = function DocumentPanel(props: DocumentPanelProps) {
     ready,
     schemaType,
     permissions,
+    onMenuAction,
     isPermissionsLoading,
     isDeleting,
     isDeleted,
     timelineStore,
     formState,
+    menuItems,
+    menuItemGroups,
   } = useDocumentPane()
   const {collapsed: layoutCollapsed} = usePaneLayout()
   const {collapsed} = usePane()
@@ -86,6 +106,8 @@ export const DocumentPanel = function DocumentPanel(props: DocumentPanelProps) {
     () => views.find((view) => view.id === activeViewId) || views[0] || {type: 'form'},
     [activeViewId, views],
   )
+
+  const showTabs = views.length > 1
 
   // Use a local portal container when split panes is supported
   const portalElement: HTMLElement | null = features.splitPanes
@@ -145,10 +167,38 @@ export const DocumentPanel = function DocumentPanel(props: DocumentPanelProps) {
 
   const showInspector = Boolean(!collapsed && inspector)
 
+  const {actions: fieldActions} = useFieldActions()
+
+  const menuNodes = useMemo(
+    () => resolveMenuNodes({actionHandler: onMenuAction, fieldActions, menuItems, menuItemGroups}),
+    [fieldActions, menuItemGroups, menuItems, onMenuAction],
+  )
+
+  const menuButtonNodes = useMemo(() => menuNodes.filter(isMenuNodeButton), [menuNodes])
+
   return (
     <>
-      <DocumentPanelHeader ref={setHeaderElement} />
+      <DocumentPanelHeader actionsBoxRef={setActionsBoxElement} ref={setHeaderElement} />
+      {/* Badges + sparkline */}
+      {/* <DocumentStatusBar /> */}
 
+      {/* Tabs + menu button actions*/}
+      <Flex
+        align="center"
+        justify="space-between"
+        paddingLeft={3}
+        paddingRight={2}
+        paddingY={1}
+        // style={{border: '1px solid orange'}}
+      >
+        {showTabs ? <DocumentHeaderTabs /> : <div />}
+
+        <Flex gap={1}>
+          {menuButtonNodes.map((item) => (
+            <PaneHeaderActionButton key={item.key} node={item} />
+          ))}
+        </Flex>
+      </Flex>
       <PaneContent>
         <Flex height="fill">
           {(features.resizablePanes || !showInspector) && (

@@ -162,6 +162,8 @@ export function AnimatedStatusIcon(props: AnimatedStatusIconProps) {
       stroke="currentColor"
       strokeWidth="1.2"
       data-sanity-icon=""
+      // @todo: hack, TextWithTone should handle this
+      style={{color: 'inherit'}}
     >
       <motion.g variants={root} initial={status} animate={status}>
         <RotateGroup data-rotate={status === 'changes' ? undefined : ''}>

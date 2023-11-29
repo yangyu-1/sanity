@@ -355,7 +355,7 @@ function CommentsInspectorInner(props: DocumentInspectorProps) {
           />
         )}
 
-        <CommentsInspectorFeedbackFooter />
+        {/* <CommentsInspectorFeedbackFooter /> */}
       </Flex>
     </Fragment>
   )
