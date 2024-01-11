@@ -1,17 +1,14 @@
+import {CliCommandArguments, CliCommandContext} from '@sanity/cli'
 import {promptForDatasetName} from '../../../actions/dataset/datasetNamePrompt'
 
-const toggleDatasetBackup = async (enableBackups: boolean, args: any, context: any) => {
+async function toggleDatasetBackupHandler(
+  args: CliCommandArguments,
+  context: CliCommandContext,
+  enableBackups: boolean,
+): Promise<void> {
   const {apiClient, output, prompt, chalk} = context
   const [dataset] = args.argsWithoutOptions
   let client = apiClient()
-
-  const projectFeatures = await client.request({uri: '/features'})
-  if (!projectFeatures.includes('backups')) {
-    const action = enableBackups ? 'enable' : 'disable'
-    throw new Error(
-      `Could not ${action} backup: backup configuration is not allowed for this project`
-    )
-  }
 
   const datasetName = await (dataset || promptForDatasetName(prompt))
   client = client.clone().config({dataset: datasetName})
@@ -32,4 +29,4 @@ const toggleDatasetBackup = async (enableBackups: boolean, args: any, context: a
   }
 }
 
-export default toggleDatasetBackup
+export default toggleDatasetBackupHandler

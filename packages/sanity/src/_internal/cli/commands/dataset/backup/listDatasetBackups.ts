@@ -1,81 +1,82 @@
-import type {CliCommandDefinition} from '@sanity/cli'
+import type {CliCommandAction} from '@sanity/cli'
 import {promptForDatasetName} from '../../../actions/dataset/datasetNamePrompt'
-
-const listHelpText = `
-Options
-  -- limit <int> Maximum number of backups returned. Default 30. Cannot exceed 100.
-  -- start <timestamp> Only return backups after this timestamp (inclusive)
-  -- end <timestamp> Only return backups before this timestamp (exclusive)
-
-Example
-  sanity dataset backup list <name>
-  sanity dataset backup list --limit 50 <name>
-  sanity dataset backup list --start 2020-01-01T09:00:00 --limit 10 <name>
-`
 
 const defaultLimit = 30
 const maxLimit = 100
 
 interface queryParams {
-  limit: number
+  limit: string // The query param object expects strings, not numbers.
   start?: string
   end?: string
 }
 
-const listDatasetBackupsCommand: CliCommandDefinition = {
-  name: 'backup list',
-  group: 'dataset',
-  signature: '[datasetName]',
-  helpText: listHelpText,
-  description: 'List dataset backups for this dataset',
-  action: async (args: any, context: any) => {
-    const {apiClient, output, prompt, chalk} = context
-    const flags = args.extOptions
-    const [dataset] = args.argsWithoutOptions
-    let client = apiClient()
-
-    const datasetName = await (dataset || promptForDatasetName(prompt))
-    client = client.clone().config({dataset: datasetName})
-
-    const query: queryParams = {limit: defaultLimit}
-    if (flags.limit) {
-      query.limit = parseLimit(flags.limit)
-    }
-
-    if (flags.start) {
-      query.start = parseTimestamp(flags.start)
-    }
-
-    if (flags.end) {
-      query.end = parseTimestamp(flags.end)
-    }
-
-    let response
-    try {
-      response = await client.request({
-        uri: `/datasets/${datasetName}/backups`,
-        query,
-      })
-    } catch {
-      // TODO: Handle error.
-    }
-    // TODO: Do something with response.
-  },
+interface backupResponse {
+  id: string
+  createdAt: string
 }
 
-function parseLimit(input: any): number {
-  if (isNaN(input)) throw new Error('Limit must be an integer')
+export const listDatasetBackupsAction: CliCommandAction = async (args, context) => {
+  const {apiClient, output, prompt, chalk} = context
+  const flags = args.extOptions
+  const [dataset] = args.argsWithoutOptions
+  let client = apiClient()
+
+  const datasetName = await (dataset || promptForDatasetName(prompt))
+  client = client.clone().config({dataset: datasetName})
+
+  const query: queryParams = {limit: defaultLimit.toString()}
+  if (flags.limit) {
+    query.limit = parseLimit(flags.limit)
+  }
+
+  if (flags.start) {
+    try {
+      query.start = new Date(flags.start.toString()).toISOString()
+    } catch (err) {
+      throw new Error(`Parsing <start> timestamp: ${err}`)
+    }
+  }
+
+  if (flags.end) {
+    try {
+      query.end = new Date(flags.end.toString()).toISOString()
+    } catch (err) {
+      throw new Error(`Parsing <end> timestamp: ${err}`)
+    }
+  }
+
+  if (query.start && query.end && query.start >= query.end) {
+    throw new Error('<start> timestamp must be before <end>')
+  }
+
+  let response
+  try {
+    response = await client.request({
+      uri: `/datasets/${datasetName}/backups`,
+      query: {...query},
+    })
+  } catch (error) {
+    const msg = error.statusCode ? error.response.body.message : error.message
+    output.print(`${chalk.red(`List dataset backup failed: ${msg}`)}\n`)
+  }
+
+  output.print(`Fetched ${response.limit} backups`)
+  if (flags['with-created-at']) {
+    output.print(response.backups.map((b: backupResponse) => JSON.stringify(b)).join('\n'))
+    return
+  }
+  output.print(response.backups.map((b: backupResponse) => b.id).join('\n'))
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseLimit(input: any): string {
+  if (input === null || input === undefined || isNaN(input)) {
+    throw new Error('<limit> must be an integer')
+  }
 
   const limit = parseInt(input, 10)
-  if (limit < 1 || limit > maxLimit) {
-    throw new Error('Limit must be an integer between 1 and 100')
+  if (limit < 1 || limit > maxLimit || isNaN(limit)) {
+    throw new Error('<limit> must be an integer between 1 and 100')
   }
-  return limit
+  return limit.toString() // The query param object expects string inputs, not numbers.
 }
-
-// TODO: Finish func.
-function parseTimestamp(timestamp: any): string {
-  return ''
-}
-
-export default listDatasetBackupsCommand
