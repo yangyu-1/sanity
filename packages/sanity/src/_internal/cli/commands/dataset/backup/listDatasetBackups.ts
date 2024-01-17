@@ -1,16 +1,16 @@
 import type {CliCommandAction} from '@sanity/cli'
 import {promptForDatasetName} from '../../../actions/dataset/datasetNamePrompt'
 
-const defaultLimit = 30
-const maxLimit = 100
+const DEFAULT_LIMIT = 30
+const MAX_LIMIT = 100
 
-interface queryParams {
+type queryParams = {
   limit: string // The query param object expects strings, not numbers.
   start?: string
   end?: string
 }
 
-interface backupResponse {
+type backupResponse = {
   id: string
   createdAt: string
 }
@@ -18,13 +18,14 @@ interface backupResponse {
 export const listDatasetBackupsAction: CliCommandAction = async (args, context) => {
   const {apiClient, output, prompt, chalk} = context
   const flags = args.extOptions
-  const [dataset] = args.argsWithoutOptions
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_cmdName, dataset] = args.argsWithoutOptions
   let client = apiClient()
 
   const datasetName = await (dataset || promptForDatasetName(prompt))
   client = client.clone().config({dataset: datasetName})
 
-  const query: queryParams = {limit: defaultLimit.toString()}
+  const query: queryParams = {limit: DEFAULT_LIMIT.toString()}
   if (flags.limit) {
     query.limit = parseLimit(flags.limit)
   }
@@ -56,7 +57,9 @@ export const listDatasetBackupsAction: CliCommandAction = async (args, context) 
       query: {...query},
     })
   } catch (error) {
-    const msg = error.statusCode ? error.response.body.message : error.message
+    const msg = error.statusCode
+      ? error.response.body.message
+      : error.message || error.statusMessage
     output.print(`${chalk.red(`List dataset backup failed: ${msg}`)}\n`)
   }
 
@@ -75,7 +78,7 @@ function parseLimit(input: any): string {
   }
 
   const limit = parseInt(input, 10)
-  if (limit < 1 || limit > maxLimit || isNaN(limit)) {
+  if (limit < 1 || limit > MAX_LIMIT || isNaN(limit)) {
     throw new Error('<limit> must be an integer between 1 and 100')
   }
   return limit.toString() // The query param object expects string inputs, not numbers.

@@ -2,6 +2,7 @@ import type {CliCommandDefinition} from '@sanity/cli'
 import oneline from 'oneline'
 import toggleDatasetBackupHandler from './toggleDatasetBackupHandler'
 import {listDatasetBackupsAction} from './listDatasetBackups'
+import {getDatasetBackupAction} from './getDatasetBackupAction'
 
 const helpText = `
 Below are examples of the backup subcommand
@@ -25,10 +26,12 @@ List Backup
 
 Download Backup
   Options
-    --foo
+    --to <string> The file path the backup should download to
+    --from <string> The backup ID to download (required)
 
-  Usage
-    sanity dataset backups download <backup-id>
+  Example
+    sanity dataset backups get <name> --from 2020-01-01-backup-abcd1234
+    sanity dataset backups get <name> --from 2020-01-01-backup-abcd1234 --to /path/to/file
 `
 
 const datasetBackupCommands: CliCommandDefinition = {
@@ -49,8 +52,8 @@ const datasetBackupCommands: CliCommandDefinition = {
       case 'list':
         await listDatasetBackupsAction(args, context)
         break
-      case 'download':
-        // Coming soon!
+      case 'get':
+        await getDatasetBackupAction(args, context)
         break
       default:
         throw new Error(oneline`
