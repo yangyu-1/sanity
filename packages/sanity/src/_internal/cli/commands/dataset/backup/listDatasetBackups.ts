@@ -10,7 +10,11 @@ type queryParams = {
   end?: string
 }
 
-type backupResponse = {
+type ListBackupResponse = {
+  backups: ListBackupResponseItem[]
+}
+
+type ListBackupResponseItem = {
   id: string
   createdAt: string
 }
@@ -20,8 +24,9 @@ export const listDatasetBackupsAction: CliCommandAction = async (args, context) 
   const flags = args.extOptions
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_cmdName, dataset] = args.argsWithoutOptions
-  let client = apiClient()
+  let client = apiClient({requireProject: false})
 
+  const projectId = client.config().projectId
   const datasetName = await (dataset || promptForDatasetName(prompt))
   client = client.clone().config({dataset: datasetName})
 
@@ -52,23 +57,28 @@ export const listDatasetBackupsAction: CliCommandAction = async (args, context) 
 
   let response
   try {
-    response = await client.request({
-      uri: `/datasets/${datasetName}/backups`,
+    response = await client.request<ListBackupResponse>({
+      method: 'GET',
+      uri: `/projects/${projectId}/datasets/${datasetName}/backups`,
       query: {...query},
     })
   } catch (error) {
     const msg = error.statusCode
       ? error.response.body.message
       : error.message || error.statusMessage
-    output.print(`${chalk.red(`List dataset backup failed: ${msg}`)}\n`)
+    output.error(`${chalk.red(`List dataset backup failed: ${msg}`)}\n`)
   }
 
-  output.print(`Fetched ${response.limit} backups`)
-  if (flags['with-created-at']) {
-    output.print(response.backups.map((b: backupResponse) => JSON.stringify(b)).join('\n'))
-    return
+  if (response && response.backups) {
+    output.print(`Fetched ${response.backups.length} backups`)
+    if (flags['with-created-at']) {
+      output.print(
+        response.backups.map((b: ListBackupResponseItem) => JSON.stringify(b)).join('\n'),
+      )
+      return
+    }
+    output.print(response.backups.map((b: ListBackupResponseItem) => b.id).join('\n'))
   }
-  output.print(response.backups.map((b: backupResponse) => b.id).join('\n'))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

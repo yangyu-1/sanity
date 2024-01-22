@@ -1,14 +1,14 @@
+import {Chalk} from 'chalk'
 import {debug} from 'console'
 import {PathLike, createWriteStream, existsSync, mkdirSync} from 'fs'
-import path from 'path'
 import {tmpdir} from 'os'
-import {Chalk} from 'chalk'
-import rimraf from 'rimraf'
 import pMap from 'p-map'
+import path from 'path'
 import pluralize from 'pluralize-esm'
+import rimraf from 'rimraf'
 
-import {QueryParams} from '@sanity/client'
 import type {CliCommandAction, CliOutputter, CliPrompter, SanityClient} from '@sanity/cli'
+import {QueryParams} from '@sanity/client'
 import {promptForDatasetName} from '../../../actions/dataset/datasetNamePrompt'
 
 const archiver = require('archiver')
