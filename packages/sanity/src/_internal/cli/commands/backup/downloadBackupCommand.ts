@@ -265,6 +265,10 @@ async function downloadFiles(
 }
 
 async function downloadFile(file: file, dir: string) {
+  // File names that contain a path to file (sanity-storage/assets/file-name) fail when archive is created, so we
+  // want to handle them by taking the base name as file name.
+  file.name = path.basename(file.name)
+
   let error
   const filepath = path.join(dir, file.name)
   for (let retryCount = 0; retryCount < MAX_RETRIES; retryCount++) {
