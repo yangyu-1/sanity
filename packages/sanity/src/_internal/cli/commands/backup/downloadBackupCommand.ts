@@ -1,15 +1,19 @@
-import {debug} from 'console'
+/* eslint-disable max-statements */
 import {PathLike, createWriteStream, existsSync, mkdirSync} from 'fs'
 import {tmpdir} from 'os'
 import path from 'path'
+import zlib from 'zlib'
+import {randomKey} from '@sanity/block-tools'
 import type {
   CliCommandArguments,
   CliCommandContext,
   CliCommandDefinition,
+  CliOutputter,
   SanityClient,
 } from '@sanity/cli'
 import {QueryParams} from '@sanity/client'
 import {absolutify} from '@sanity/util/fs'
+import type chalk from 'chalk'
 import {isBoolean, isNumber, isString} from 'lodash'
 import pMap from 'p-map'
 import prettyMs from 'pretty-ms'
@@ -18,6 +22,7 @@ import chooseBackupIdPrompt from '../../actions/backup/chooseBackupIdPrompt'
 import resolveApiClient from '../../actions/backup/resolveApiClient'
 import getOutputPath from '../../actions/dataset/getOutoutPath'
 import {defaultApiVersion} from './backupGroup'
+import debug from './debug'
 
 const archiver = require('archiver')
 const {getIt} = require('get-it')
@@ -127,11 +132,17 @@ const downloadBackupCommand: CliCommandDefinition = {
     }
 
     // Create temporary directory to store files before bundling them into the archive at outputPath.
-    const tmpDir = tmpdir()
+    // We are adding unix milliseconds and a random key to try to backup in a unique location on each attempt.
+    // Temporary directories are normally deleted at the end of backup process, any unexpected exit may leave them
+    // behind, hence it is important to create a unique directory for each attempt.
+    // We intentionally avoid `datasetName` and `backupId`in path since some operating system have a max length
+    // of 256 chars on path names and both of them can be quite long in some cases.
+    const tmpDir = path.join(tmpdir(), `backup-${Date.now()}-${randomKey(5)}`)
     if (!existsSync(tmpDir)) {
       mkdirSync(tmpDir)
     }
 
+    debug('Writing to temporary directory %s', tmpDir)
     try {
       await downloadFiles(client, {...opts, outDir: tmpDir}, onProgress)
     } catch (err) {
@@ -146,9 +157,20 @@ const downloadBackupCommand: CliCommandDefinition = {
       total: 1,
     })
 
-    const archive = archiver('tar', {gzip: true})
+    const archive = archiver('tar', {
+      gzip: true,
+      gzipOptions: {level: zlib.constants.Z_DEFAULT_COMPRESSION},
+    })
+
     archive.on('error', (err: Error) => {
+      debug('Archiving errored!\n%s', err.stack)
+      cleanupTmpDir(output, chalk, tmpDir)
       throw err
+    })
+
+    // Catch warnings for non-blocking errors (stat failures and others)
+    archive.on('warning', (err: Error) => {
+      debug('Archive warning: %s', err.message)
     })
 
     const archiveDestination = createWriteStream(absOutputPath as PathLike)
@@ -157,20 +179,22 @@ const downloadBackupCommand: CliCommandDefinition = {
     })
 
     archiveDestination.on('close', () => {
-      output.print(`Cleaning up temporary files at ${chalk.cyan(`${tmpDir}`)}`)
-      rimraf(tmpDir, (err) => {
-        if (err) {
-          debug(`Error cleaning up temporary files: ${err.message}`)
-        }
-      })
+      debug(`Written ${archive.pointer()} total bytes to archive`)
+      cleanupTmpDir(output, chalk, tmpDir)
     })
 
+    // Pipe archive data to the file
     archive.pipe(archiveDestination)
+
+    // We are archiving content of tmpDir into a sub-directory based on `outFileName` so that upon
+    // unarchiving, content is not spread in root path.
+    // E.g. If archive name is foo.tar.gz, then we will be putting all the content inside foo/
+    const archiveSubDir = outFileName.split('.')[0]
 
     // We intentionally download all files first, then bundle them into the archive. This lets us
     // download multiple files concurrently. A possible optimisation is to stream files into the
     // archive as soon as they've downloaded.
-    archive.directory(tmpDir, false)
+    archive.directory(tmpDir, archiveSubDir)
     archive.finalize()
 
     onProgress({
@@ -193,12 +217,8 @@ async function downloadFiles(
   let cursor: string | null = ''
   while (cursor !== null) {
     const query: QueryParams = cursor === '' ? {} : {nextCursor: cursor}
-    let response: GetBackupResponse = {
-      createdAt: '',
-      totalSize: 0,
-      files: [],
-    }
 
+    let response: GetBackupResponse
     try {
       response = await client.request({
         headers: {Authorization: `Bearer ${opts.token}`},
@@ -364,6 +384,15 @@ async function prepareBackupOptions(
       concurrency: Number(flags.concurrency) || DEFAULT_DOWNLOAD_CONCURRENCY,
     },
   ]
+}
+
+function cleanupTmpDir(output: CliOutputter, chalk: chalk.Chalk, tmpDir: string) {
+  output.print(`Cleaning up temporary files at ${chalk.cyan(`${tmpDir}`)}`)
+  rimraf(tmpDir, (err) => {
+    if (err) {
+      debug(`Error cleaning up temporary files: ${err.message}`)
+    }
+  })
 }
 
 export default downloadBackupCommand
