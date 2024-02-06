@@ -1,6 +1,7 @@
 import type {CliCommandDefinition} from '@sanity/cli'
 import {Table} from 'console-table-printer'
 import {lightFormat} from 'date-fns'
+import moment from 'moment'
 import resolveApiClient from '../../actions/backup/resolveApiClient'
 import {defaultApiVersion, validateLimit} from './backupGroup'
 
@@ -30,14 +31,14 @@ type ListBackupResponseItem = {
 const helpText = `
 Options
   --limit <int>     Maximum number of backups returned. Default 30.
-  --after <string>  Only return backups after this timestamp (inclusive)
-  --before <string> Only return backups before this timestamp (exclusive). Cannot be younger than <after> if specified.
+  --after <string>  Only return backups after this date (inclusive)
+  --before <string> Only return backups before this date (exclusive). Cannot be younger than <after> if specified.
 
 Examples
   sanity backup list DATASET_NAME
   sanity backup list DATASET_NAME --limit 50
-  sanity backup list DATASET_NAME --after 2024-01-01 --limit 10
-  sanity backup list DATASET_NAME --after 2024-01-01T12:00:01Z --before 2024-01-10
+  sanity backup list DATASET_NAME --after 2024-01-31 --limit 10
+  sanity backup list DATASET_NAME --after 2024-01-31 --before 2024-01-10
 `
 
 const listDatasetBackupCommand: CliCommandDefinition<ListDatasetBackupFlags> = {
@@ -67,23 +68,23 @@ const listDatasetBackupCommand: CliCommandDefinition<ListDatasetBackupFlags> = {
     }
 
     if (flags.after) {
-      try {
-        query.start = new Date(flags.after).toISOString()
-      } catch (err) {
-        throw new Error(`Parsing --after date: ${err}`)
+      if (moment(flags.after, 'YYYY-MM-DD', true).isValid()) {
+        query.start = flags.after
+      } else {
+        throw new Error('Invalid after date format. Use YYYY-MM-DD')
       }
     }
 
     if (flags.before) {
-      try {
-        query.end = new Date(flags.before).toISOString()
-      } catch (err) {
-        throw new Error(`Parsing --before date: ${err}`)
+      if (moment(flags.before, 'YYYY-MM-DD', true).isValid()) {
+        query.end = flags.before
+      } else {
+        throw new Error('Invalid before date format. Use YYYY-MM-DD')
       }
     }
 
-    if (query.start && query.end && query.start >= query.end) {
-      throw new Error('--after timestamp must be before --before')
+    if (query.start && query.end && moment(query.start).isAfter(query.end)) {
+      throw new Error('--after date must be before --before')
     }
 
     let response

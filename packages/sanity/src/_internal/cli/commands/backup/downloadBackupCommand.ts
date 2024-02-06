@@ -162,8 +162,6 @@ const downloadBackupCommand: CliCommandDefinition = {
     } catch (error) {
       spinner.fail()
       let msg = error.statusCode ? error.response.body.message : error.message
-      // eslint-disable-next-line no-warning-comments
-      // TODO: Pull this out in a common error handling function for reusability.
       // If no message can be extracted, print the whole error.
       if (msg === undefined) {
         msg = String(error)
