@@ -1,8 +1,8 @@
 /* eslint-disable max-statements */
-import {PathLike, createWriteStream, existsSync, mkdirSync} from 'fs'
+import {Readable} from 'stream'
+import {createWriteStream, existsSync, mkdirSync, PathLike} from 'fs'
 import {tmpdir} from 'os'
 import path from 'path'
-import {Readable} from 'stream'
 import zlib from 'zlib'
 import {randomKey} from '@sanity/block-tools'
 import type {
@@ -20,7 +20,6 @@ import prettyMs from 'pretty-ms'
 import rimraf from 'rimraf'
 import chooseBackupIdPrompt from '../../actions/backup/chooseBackupIdPrompt'
 import resolveApiClient from '../../actions/backup/resolveApiClient'
-import getOutputPath from '../../actions/dataset/getOutoutPath'
 import {defaultApiVersion} from './backupGroup'
 import debug from './debug'
 
@@ -32,6 +31,7 @@ const CONNECTION_TIMEOUT = 15 * 1000 // 15 seconds
 const READ_TIMEOUT = 3 * 60 * 1000 // 3 minutes
 const MAX_RETRIES = 5
 const DEFAULT_DOWNLOAD_CONCURRENCY = 10
+const MAX_CONCURRENCY = 24
 
 const request = getIt([keepAlive(), promise({onlyBody: true})])
 const socketsWithTimeout = new WeakSet()
@@ -64,8 +64,8 @@ type file = {
 interface ProgressEvent {
   step: string
   update?: boolean
-  current: number
-  total: number
+  current?: number
+  total?: number
 }
 
 const helpText = `
@@ -76,9 +76,9 @@ Options
   --concurrency <num>  Concurrent number of backup item downloads. (max: 24)
 
 Examples
-  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-abcd1234
-  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-abcd1234 --out /path/to/file
-  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-abcd1234 --out /path/to/file --overwrite
+  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-1
+  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-2 --out /path/to/file
+  sanity backup download DATASET_NAME --backup-id 2020-01-01-backup-3 --out /path/to/file --overwrite
 `
 
 const downloadBackupCommand: CliCommandDefinition = {
@@ -88,9 +88,15 @@ const downloadBackupCommand: CliCommandDefinition = {
   description: 'Download a dataset backup to a local file.',
   helpText,
   action: async (args, context) => {
-    const {output, prompt, chalk} = context
+    const {output, chalk} = context
     const [client, opts] = await prepareBackupOptions(context, args)
-    const {projectId, datasetName, backupId, outDir, outFileName, overwrite} = opts
+    const {projectId, datasetName, backupId, outDir, outFileName} = opts
+
+    if (outDir === '' || outFileName === '') {
+      output.print('Operation cancelled.')
+      return
+    }
+    const outFilePath = path.join(outDir, outFileName)
 
     output.print('╭───────────────────────────────────────────────────────────╮')
     output.print('│                                                           │')
@@ -102,21 +108,7 @@ const downloadBackupCommand: CliCommandDefinition = {
     output.print('╰───────────────────────────────────────────────────────────╯')
     output.print('')
 
-    // Check if the file already exists at the path, ask for confirmation if it does.
-    // Also, generate absolute path for the file.
-    const absOutFilePath = await getOutputPath(
-      prompt,
-      datasetName,
-      path.join(outDir, outFileName),
-      overwrite,
-    )
-
-    if (!absOutFilePath) {
-      output.print('Cancelled')
-      return
-    }
-
-    output.print(`Downloading backup to "${chalk.cyan(absOutFilePath)}"`)
+    output.print(`Downloading backup to "${chalk.cyan(outFilePath)}"`)
 
     const start = Date.now()
     let currentStep = 'Downloading documents and assets...'
@@ -126,14 +118,18 @@ const downloadBackupCommand: CliCommandDefinition = {
         spinner.succeed()
         spinner = output.spinner(progress.step).start()
       } else if (progress.step === currentStep && progress.update) {
-        spinner.text = `${progress.step} (${progress.current}/${progress.total})`
+        if (progress.current && progress.current > 0 && progress.total && progress.total > 0) {
+          spinner.text = `${progress.step} (${progress.current}/${progress.total})`
+        } else {
+          spinner.text = `${progress.step}`
+        }
       }
 
       currentStep = progress.step
     }
 
     // Create temporary directory to store files before bundling them into the archive at outputPath.
-    // We are adding unix milliseconds and a random key to try to backup in a unique location on each attempt.
+    // We are adding unix milliseconds and a random key to try to back up in a unique location on each attempt.
     // Temporary directories are normally deleted at the end of backup process, any unexpected exit may leave them
     // behind, hence it is important to create a unique directory for each attempt.
     // We intentionally avoid `datasetName` and `backupId`in path since some operating system have a max length
@@ -143,7 +139,7 @@ const downloadBackupCommand: CliCommandDefinition = {
     // Create temporary directories if they don't exist.
     for (const dir of [tmpOutDir, path.join(tmpOutDir, 'images'), path.join(tmpOutDir, 'files')]) {
       if (!existsSync(dir)) {
-        mkdirSync(dir)
+        mkdirSync(dir, {recursive: true})
       }
     }
 
@@ -178,8 +174,6 @@ const downloadBackupCommand: CliCommandDefinition = {
     onProgress({
       step: `Archiving files into a tarball...`,
       update: true,
-      current: 1,
-      total: 1,
     })
 
     const archive = archiver('tar', {
@@ -198,7 +192,7 @@ const downloadBackupCommand: CliCommandDefinition = {
       debug('Archive warning: %s', err.message)
     })
 
-    const archiveDestination = createWriteStream(absOutFilePath as PathLike)
+    const archiveDestination = createWriteStream(outFilePath as PathLike)
     archiveDestination.on('error', (err: Error) => {
       throw err
     })
@@ -210,19 +204,12 @@ const downloadBackupCommand: CliCommandDefinition = {
 
     // Pipe archive data to the file
     archive.pipe(archiveDestination)
-
-    // We are archiving content of tmpDir into a sub-directory based on `outFileName` so that upon
-    // unarchiving, content is not spread in root path.
-    // E.g. If archive name is foo.tar.gz, then we will be putting all the content inside foo/
-    // const archiveSubDir = outFileName.split('.')[0]
     archive.directory(tmpOutDir, false)
     archive.finalize()
 
     onProgress({
       step: `Backup download complete (${prettyMs(Date.now() - start)}).`,
       update: true,
-      current: 1,
-      total: 1,
     })
     spinner.succeed()
   },
@@ -230,8 +217,8 @@ const downloadBackupCommand: CliCommandDefinition = {
 
 class PaginatedGetBackupStream extends Readable {
   private cursor = ''
-  private client: SanityClient
-  private opts: DownloadBackupOptions
+  private readonly client: SanityClient
+  private readonly opts: DownloadBackupOptions
   public totalFiles = 0
 
   constructor(client: SanityClient, opts: DownloadBackupOptions) {
@@ -245,7 +232,7 @@ class PaginatedGetBackupStream extends Readable {
       const data = await fetchNextBackupPage(this.client, this.opts, this.cursor)
 
       // Set totalFiles when it's fetched for the first time
-      if (this.totalFiles === 0 && typeof data.totalFiles === 'number') {
+      if (this.totalFiles === 0) {
         this.totalFiles = data.totalFiles
       }
 
@@ -285,7 +272,7 @@ async function fetchNextBackupPage(
 
     return response
   } catch (error) {
-    // It can be clearer to pull this logic out in a  common error handling function for reusability.
+    // It can be clearer to pull this logic out in a  common error handling function for re-usability.
     let msg = error.statusCode ? error.response.body.message : error.message
 
     // If no message can be extracted, print the whole error.
@@ -301,21 +288,15 @@ async function downloadFile(file: file, tmpOutDir: string) {
   // want to handle them by taking the base name as file name.
   file.name = path.basename(file.name)
 
-  let assetFilePath = ''
-  if (file.type === 'image') {
-    assetFilePath = path.join(path.join(tmpOutDir, 'images'), file.name)
-  } else if (file.type === 'file') {
-    assetFilePath = path.join(path.join(tmpOutDir, 'files'), file.name)
-  }
-
+  const assetFilePath = getAssetFilePath(file, tmpOutDir)
   let error
   for (let retryCount = 0; retryCount < MAX_RETRIES; retryCount++) {
     try {
       const response = await request({
         url: file.url,
-        stream: assetFilePath !== '',
         maxRedirects: 5,
         timeout: {connect: CONNECTION_TIMEOUT, socket: READ_TIMEOUT},
+        stream: assetFilePath !== '', // Only stream the response if it's an asset file.
       })
 
       if (
@@ -386,9 +367,9 @@ async function prepareBackupOptions(
     if (
       !isNumber(flags.concurrency) ||
       Number(flags.concurrency) < 1 ||
-      Number(flags.concurrency) > 24
+      Number(flags.concurrency) > MAX_CONCURRENCY
     ) {
-      throw new Error(`concurrency should be in 1 to 24 range`)
+      throw new Error(`concurrency should be in 1 to ${MAX_CONCURRENCY} range`)
     }
   }
 
@@ -396,19 +377,20 @@ async function prepareBackupOptions(
     throw new Error(`overwrite should be valid boolean`)
   }
 
-  const defaultBackupFileName = `${datasetName}-backup-${backupId}.tar.gz`
+  const defaultOutFileName = `${datasetName}-backup-${backupId}.tar.gz`
   let out = await (async (): Promise<string> => {
     if ('out' in flags) {
       if (!isString(flags.out)) {
-        throw new Error(`out path should be valid string`)
+        throw new Error(`output path should be valid string`)
       }
+      // Rewrite the output path to an absolute path, if it is not already.
       return absolutify(flags.out)
     }
 
     const input = await prompt.single({
       type: 'input',
       message: 'Output path:',
-      default: path.join(workDir, defaultBackupFileName),
+      default: path.join(workDir, defaultOutFileName),
       filter: absolutify,
     })
     return input
@@ -416,11 +398,23 @@ async function prepareBackupOptions(
 
   // If path is a directory name, then add a default file name to the path.
   if (isPathDirName(out)) {
-    out = path.join(out, defaultBackupFileName)
+    out = path.join(out, defaultOutFileName)
   }
 
-  const outDir = path.dirname(out)
-  const outFileName = path.basename(out)
+  // If the file already exists, ask for confirmation if it should be overwritten.
+  if (!flags.overwrite && existsSync(out)) {
+    const shouldOverwrite = await prompt.single({
+      type: 'confirm',
+      message: `File "${out}" already exists, would you like to overwrite it?`,
+      default: false,
+    })
+
+    // If the user does not want to overwrite the file, set the output path to an empty string.
+    // This should be handled by the caller of this function as cancel operation.
+    if (!shouldOverwrite) {
+      out = ''
+    }
+  }
 
   return [
     client,
@@ -429,8 +423,8 @@ async function prepareBackupOptions(
       datasetName,
       backupId,
       token,
-      outDir,
-      outFileName,
+      outDir: path.dirname(out),
+      outFileName: path.basename(out),
       overwrite: Boolean(flags.overwrite),
       concurrency: Number(flags.concurrency) || DEFAULT_DOWNLOAD_CONCURRENCY,
     },
@@ -446,13 +440,22 @@ function cleanupTmpDir(output: CliOutputter, chalk: chalk.Chalk, tmpDir: string)
   })
 }
 
-function isPathDirName(filepath: string): boolean {
-  // Check if the path has an extension, commonly indicating a file
-  if (/\.\w+$/.test(filepath)) {
-    return false
+function getAssetFilePath(file: file, tmpOutDir: string): string {
+  // Set assetFilePath if we are downloading an asset file.
+  // If it's a JSON document, assetFilePath will be an empty string.
+  let assetFilePath = ''
+  if (file.type === 'image') {
+    assetFilePath = path.join(tmpOutDir, 'images', file.name)
+  } else if (file.type === 'file') {
+    assetFilePath = path.join(tmpOutDir, 'files', file.name)
   }
 
-  return true
+  return assetFilePath
+}
+
+function isPathDirName(filepath: string): boolean {
+  // Check if the path has an extension, commonly indicating a file
+  return !/\.\w+$/.test(filepath)
 }
 
 export default downloadBackupCommand
