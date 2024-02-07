@@ -106,6 +106,7 @@
     "@sanity/uuid": "^3.0.2",
     "@types/jest": "^29.5.6",
     "@types/node": "^14.18.9",
+    "@types/progress-stream": "^2.0.5",
     "@types/react": "^18.2.37",
     "@types/tmp": "^0.2.3",
     "@types/yargs": "^17.0.7",
