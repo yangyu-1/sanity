@@ -14,8 +14,8 @@ interface ListDatasetBackupFlags {
 }
 
 type ListBackupRequestQueryParams = {
-  start?: string
-  end?: string
+  before?: string
+  after?: string
   limit: string
 }
 
@@ -69,7 +69,7 @@ const listDatasetBackupCommand: CliCommandDefinition<ListDatasetBackupFlags> = {
 
     if (flags.after) {
       if (moment(flags.after, 'YYYY-MM-DD', true).isValid()) {
-        query.start = flags.after
+        query.after = flags.after
       } else {
         throw new Error('Invalid after date format. Use YYYY-MM-DD')
       }
@@ -77,13 +77,13 @@ const listDatasetBackupCommand: CliCommandDefinition<ListDatasetBackupFlags> = {
 
     if (flags.before) {
       if (moment(flags.before, 'YYYY-MM-DD', true).isValid()) {
-        query.end = flags.before
+        query.before = flags.before
       } else {
         throw new Error('Invalid before date format. Use YYYY-MM-DD')
       }
     }
 
-    if (query.start && query.end && moment(query.start).isAfter(query.end)) {
+    if (query.after && query.before && moment(query.after).isAfter(query.before)) {
       throw new Error('--after date must be before --before')
     }
 
@@ -119,7 +119,7 @@ const listDatasetBackupCommand: CliCommandDefinition<ListDatasetBackupFlags> = {
         const {id, createdAt} = backup
         table.addRow({
           resource: 'Dataset',
-          createdAt: lightFormat(Date.parse(createdAt), 'yyyy-MM-dd'),
+          createdAt: lightFormat(Date.parse(createdAt), 'yyyy-MM-dd HH:mm:ss'),
           backupId: id,
         })
       })

@@ -17,8 +17,9 @@ async function downloadAsset(
   fileType: string,
   outDir: string,
 ): Promise<void> {
-  // File names that contain a path to file (sanity-storage/assets/file-name) fail when archive is created, so we
-  // want to handle them by taking the base name as file name.
+  // File names that contain a path to file (e.g. sanity-storage/assets/file-name.tar.gz) fail when archive is
+  // created due to missing parent dir (e.g. sanity-storage/assets), so we want to handle them by taking
+  // the base name as file name.
   const normalizedFileName = path.basename(fileName)
 
   const assetFilePath = getAssetFilePath(normalizedFileName, fileType, outDir)

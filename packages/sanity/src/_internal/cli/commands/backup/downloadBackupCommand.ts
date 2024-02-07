@@ -1,6 +1,7 @@
 import {createWriteStream, existsSync, mkdirSync} from 'fs'
 import {tmpdir} from 'os'
 import path from 'path'
+import {mkdtemp} from 'node:fs/promises'
 import {randomKey} from '@sanity/block-tools'
 import type {
   CliCommandArguments,
@@ -85,31 +86,21 @@ const downloadBackupCommand: CliCommandDefinition = {
     const start = Date.now()
     const progressSpinner = newProgress(output, 'Setting up backup environment...')
 
-    // Create temporary directory to store files before bundling them into the archive at outputPath.
-    // We are adding unix milliseconds and a random key to try to back up in a unique location on each attempt.
+    // Create a unique temporary directory to store files before bundling them into the archive at outputPath.
     // Temporary directories are normally deleted at the end of backup process, any unexpected exit may leave them
     // behind, hence it is important to create a unique directory for each attempt.
-    // We intentionally avoid `datasetName` and `backupId`in path since some operating system have a max length
-    // of 256 chars on path names and both of them can be quite long in some cases.
-    const tmpOutDir = path.join(tmpdir(), `backup-${Date.now()}-${randomKey(5)}`)
+    const tmpOutDir = await mkdtemp(path.join(tmpdir(), `backup-`))
 
     // Create required directories if they don't exist.
-    for (const dir of [
-      outDir,
-      tmpOutDir,
-      path.join(tmpOutDir, 'images'),
-      path.join(tmpOutDir, 'files'),
-    ]) {
-      if (!existsSync(dir)) {
-        mkdirSync(dir, {recursive: true})
-      }
+    for (const dir of [outDir, path.join(tmpOutDir, 'images'), path.join(tmpOutDir, 'files')]) {
+      mkdirSync(dir, {recursive: true})
     }
 
     debug('Writing to temporary directory %s', tmpOutDir)
     const tmpOutDocumentsFile = path.join(tmpOutDir, 'data.ndjson')
 
     // Handle concurrent writes to the same file using mutex.
-    const docOutStream = createWriteStream(tmpOutDocumentsFile, {flags: 'a'})
+    const docOutStream = createWriteStream(tmpOutDocumentsFile)
     const docWriteMutex = new Mutex()
 
     try {
@@ -212,13 +203,13 @@ async function prepareBackupOptions(
     throw new Error(`token is missing`)
   }
 
+  if (!isString(datasetName) || datasetName.length < 1) {
+    throw new Error(`dataset ${datasetName} must be a valid dataset name`)
+  }
+
   const backupId = String(flags['backup-id'] || (await chooseBackupIdPrompt(context, datasetName)))
   if (backupId.length < 1) {
     throw new Error(`backup-id ${flags['backup-id']} should be a valid string`)
-  }
-
-  if (!isString(datasetName) || datasetName.length < 1) {
-    throw new Error(`dataset ${datasetName} must be a valid dataset name`)
   }
 
   if ('concurrency' in flags) {
