@@ -9,7 +9,7 @@ import {useClickOutside} from '@sanity/ui'
 import {getTheme_v2} from '@sanity/ui/theme'
 import {isEqual} from 'lodash'
 import {type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {useTranslation} from 'sanity'
+import {useCursorElement, useTranslation} from 'sanity'
 import styled, {css} from 'styled-components'
 
 import {Popover, type PopoverProps} from '../../../../../../ui-components'
@@ -17,7 +17,6 @@ import {commentsLocaleNamespace} from '../../../../i18n'
 import {MentionsMenu, type MentionsMenuHandle} from '../../mentions'
 import {renderBlock, renderChild} from '../render'
 import {useCommentInput} from './useCommentInput'
-import {useCursorElement} from 'sanity'
 
 const POPOVER_FALLBACK_PLACEMENTS: PopoverProps['fallbackPlacements'] = ['bottom', 'top']
 const INLINE_STYLE: React.CSSProperties = {outline: 'none'}
