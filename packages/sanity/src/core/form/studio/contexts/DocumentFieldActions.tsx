@@ -4,6 +4,9 @@ import {DocumentFieldActionsContext} from 'sanity/_singletons'
 import {type DocumentFieldAction} from '../../../config'
 import {EMPTY_ARRAY} from '../../../util'
 
+/**
+ * @internal
+ */
 export function DocumentFieldActionsProvider(props: {
   actions: DocumentFieldAction[] | undefined
   children: ReactNode
@@ -16,6 +19,9 @@ export function DocumentFieldActionsProvider(props: {
   )
 }
 
+/**
+ * @internal
+ */
 export function useDocumentFieldActions() {
   const context = useContext(DocumentFieldActionsContext)
   if (!context) {
