@@ -3,12 +3,18 @@ import {createContext, type ReactNode, useContext, useMemo} from 'react'
 import {type DocumentFieldAction} from '../../../config'
 import {EMPTY_ARRAY} from '../../../util'
 
+/**
+ * @internal
+ */
 export interface DocumentFieldActionsContextValue {
   actions: DocumentFieldAction[]
 }
 
 const DocumentFieldActionsContext = createContext<DocumentFieldActionsContextValue | null>(null)
 
+/**
+ * @internal
+ */
 export function DocumentFieldActionsProvider(props: {
   actions: DocumentFieldAction[] | undefined
   children: ReactNode
@@ -21,6 +27,9 @@ export function DocumentFieldActionsProvider(props: {
   )
 }
 
+/**
+ * @internal
+ */
 export function useDocumentFieldActions() {
   const context = useContext(DocumentFieldActionsContext)
   if (!context) {
