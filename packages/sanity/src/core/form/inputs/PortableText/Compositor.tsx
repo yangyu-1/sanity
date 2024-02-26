@@ -11,7 +11,7 @@ import {
 } from '@sanity/portable-text-editor'
 import {type Path, type PortableTextBlock, type PortableTextTextBlock} from '@sanity/types'
 import {Box, Portal, PortalProvider, useBoundaryElement, usePortal} from '@sanity/ui'
-import {useCallback, useMemo, useState} from 'react'
+import {type ForwardedRef, forwardRef, useCallback, useMemo, useState} from 'react'
 
 import {ChangeIndicator} from '../../../changeIndicators'
 import {EMPTY_ARRAY} from '../../../util'
@@ -52,7 +52,10 @@ interface InputProps extends ArrayOfObjectsInputProps<PortableTextBlock> {
 export type PortableTextEditorElement = HTMLDivElement | HTMLSpanElement
 
 /** @internal */
-export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunctions'>) {
+export const Compositor = forwardRef(function Compositor(
+  props: Omit<InputProps, 'schemaType' | 'arrayFunctions'>,
+  ref: ForwardedRef<HTMLDivElement | null>,
+) {
   const {
     changed,
     focused,
@@ -408,6 +411,7 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
         path={path}
         rangeDecorations={rangeDecorations}
         readOnly={readOnly}
+        ref={ref}
         renderAnnotation={editorRenderAnnotation}
         renderBlock={editorRenderBlock}
         renderChild={editorRenderChild}
@@ -438,6 +442,7 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
       editorRenderChild,
       renderEditable,
       scrollElement,
+      ref,
     ],
   )
 
@@ -489,4 +494,4 @@ export function Compositor(props: Omit<InputProps, 'schemaType' | 'arrayFunction
       </ActivateOnFocus>
     </PortalProvider>
   )
-}
+})

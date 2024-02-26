@@ -14,11 +14,17 @@ import {
   type RenderStyleFunction,
 } from '@sanity/portable-text-editor'
 import {type Path} from '@sanity/types'
-import {BoundaryElementProvider, useBoundaryElement, useGlobalKeyDown, useLayer} from '@sanity/ui'
+import {
+  BoundaryElementProvider,
+  useBoundaryElement,
+  useForwardedRef,
+  useGlobalKeyDown,
+  useLayer,
+} from '@sanity/ui'
 // eslint-disable-next-line camelcase
 import {getTheme_v2} from '@sanity/ui/theme'
 import {omit} from 'lodash'
-import {useCallback, useMemo, useRef} from 'react'
+import {type ForwardedRef, forwardRef, useCallback, useMemo} from 'react'
 import styled, {css} from 'styled-components'
 
 import {TooltipDelayGroupProvider} from '../../../../ui-components'
@@ -90,7 +96,10 @@ const renderListItem: RenderListItemFunction = (props) => {
 /**
  * @internal
  */
-export function Editor(props: EditorProps) {
+export const Editor = forwardRef(function Editor(
+  props: EditorProps,
+  ref: ForwardedRef<HTMLDivElement | null>,
+) {
   const {
     hideToolbar,
     hotkeys,
@@ -116,7 +125,8 @@ export function Editor(props: EditorProps) {
   const {id} = useFormBuilder()
   const {t} = useTranslation()
   const {isTopLayer} = useLayer()
-  const editableRef = useRef<HTMLDivElement | null>(null)
+
+  const editableRef = useForwardedRef(ref)
 
   const {element: boundaryElement} = useBoundaryElement()
 
@@ -176,6 +186,7 @@ export function Editor(props: EditorProps) {
     return defaultRender(editableProps)
   }, [
     ariaDescribedBy,
+    editableRef,
     hotkeys,
     initialSelection,
     onCopy,
@@ -235,4 +246,4 @@ export function Editor(props: EditorProps) {
       </EditableCard>
     </Root>
   )
-}
+})

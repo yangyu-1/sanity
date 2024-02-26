@@ -11,6 +11,8 @@ import {useTelemetry} from '@sanity/telemetry/react'
 import {isKeySegment, type Path, type PortableTextBlock} from '@sanity/types'
 import {Box, useToast} from '@sanity/ui'
 import {
+  type ForwardedRef,
+  forwardRef,
   type MutableRefObject,
   type ReactNode,
   startTransition,
@@ -64,7 +66,10 @@ export interface RenderPortableTextInputEditableProps extends PortableTextEditab
  * @public
  * @param props - {@link PortableTextInputProps} component props.
  */
-export function PortableTextInput(props: PortableTextInputProps) {
+export const PortableTextInput = forwardRef(function PortableTextInput(
+  props: PortableTextInputProps,
+  ref: ForwardedRef<HTMLDivElement | null>,
+) {
   const {
     active: activeProp,
     editorRef: editorRefProp,
@@ -313,6 +318,7 @@ export function PortableTextInput(props: PortableTextInputProps) {
                 onPaste={onPaste}
                 onToggleFullscreen={handleToggleFullscreen}
                 rangeDecorations={rangeDecorations}
+                ref={ref}
                 renderEditable={renderEditable}
                 renderBlockActions={renderBlockActions}
                 renderCustomMarkers={renderCustomMarkers}
@@ -323,7 +329,7 @@ export function PortableTextInput(props: PortableTextInputProps) {
       )}
     </Box>
   )
-}
+})
 
 function toFormPatches(patches: any) {
   return patches.map((p: Patch) => ({...p, patchType: SANITY_PATCH_TYPE}))
