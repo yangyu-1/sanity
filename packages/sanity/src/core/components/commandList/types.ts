@@ -33,7 +33,9 @@ export interface CommandListHandle {
   focusInputElement: () => void
   focusListElement: () => void
   getTopIndex: () => number
-  scrollToIndex: (index: number) => void
+  selectIndex: (index: number) => void
+  selectNext: () => void
+  selectPrevious: () => void
 }
 
 /** @internal */

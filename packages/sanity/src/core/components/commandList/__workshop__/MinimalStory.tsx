@@ -19,8 +19,16 @@ const StyledLink = styled.a`
 export default function MinimalStory() {
   const commandListRef = useRef<CommandListHandle | null>(null)
 
-  const handleScrollToTop = useCallback(() => {
-    commandListRef?.current?.scrollToIndex(0)
+  const handleSelectFirst = useCallback(() => {
+    commandListRef?.current?.selectIndex(0)
+  }, [])
+
+  const handleSelectNext = useCallback(() => {
+    commandListRef?.current?.selectNext()
+  }, [])
+
+  const handleSelectPrevious = useCallback(() => {
+    commandListRef?.current?.selectPrevious()
   }, [])
 
   const renderItem = useCallback<CommandListRenderItemCallback<string>>((item) => {
@@ -48,8 +56,16 @@ export default function MinimalStory() {
         />
       </div>
 
-      <button type="button" onClick={handleScrollToTop}>
-        Scroll to top
+      <button type="button" onClick={handleSelectFirst}>
+        Select first item
+      </button>
+
+      <button type="button" onClick={handleSelectNext}>
+        Select next item
+      </button>
+
+      <button type="button" onClick={handleSelectPrevious}>
+        Select previous item
       </button>
     </div>
   )

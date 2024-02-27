@@ -50,7 +50,7 @@ export default function InfiniteScrollStory() {
     (e: KeyboardEvent<HTMLInputElement>) => {
       setFilter(e.currentTarget.value)
       if (filteredValues.length > 0) {
-        commandListRef?.current?.scrollToIndex(0)
+        commandListRef?.current?.selectIndex(0)
       }
     },
     [filteredValues],
@@ -64,7 +64,7 @@ export default function InfiniteScrollStory() {
   const handleClear = useCallback(() => {
     setFilter('')
     if (filteredValues.length > 0) {
-      commandListRef?.current?.scrollToIndex(0)
+      commandListRef?.current?.selectIndex(0)
     }
   }, [filteredValues.length])
 

@@ -63,7 +63,7 @@ export default function KitchenSinkStory() {
     (e: KeyboardEvent<HTMLInputElement>) => {
       setFilter(e.currentTarget.value)
       if (filteredValues.length > 0) {
-        commandListRef?.current?.scrollToIndex(0)
+        commandListRef?.current?.selectIndex(0)
       }
     },
     [filteredValues],
@@ -83,7 +83,7 @@ export default function KitchenSinkStory() {
   const handleClear = useCallback(() => {
     setFilter('')
     if (filteredValues.length > 0) {
-      commandListRef?.current?.scrollToIndex(0)
+      commandListRef?.current?.selectIndex(0)
     }
   }, [filteredValues.length])
 
@@ -93,7 +93,7 @@ export default function KitchenSinkStory() {
   const handleReset = useCallback(() => {
     setFilter('')
     setSelected({})
-    commandListRef?.current?.scrollToIndex(0)
+    commandListRef?.current?.selectIndex(0)
     commandListRef?.current?.focusInputElement()
   }, [])
 

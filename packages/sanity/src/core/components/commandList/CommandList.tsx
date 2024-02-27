@@ -460,8 +460,16 @@ export const CommandList = forwardRef<CommandListHandle, CommandListProps>(funct
         getTopIndex() {
           return handleGetTopIndex()
         },
-        scrollToIndex(index: number) {
+        selectIndex(index: number) {
           setActiveIndex({index})
+          enableChildContainerPointerEvents(true)
+        },
+        selectNext() {
+          selectAdjacentItemIndex('next')
+          enableChildContainerPointerEvents(true)
+        },
+        selectPrevious() {
+          selectAdjacentItemIndex('previous')
           enableChildContainerPointerEvents(true)
         },
       }
@@ -471,6 +479,7 @@ export const CommandList = forwardRef<CommandListHandle, CommandListProps>(funct
       focusInputElement,
       focusListElement,
       handleGetTopIndex,
+      selectAdjacentItemIndex,
       setActiveIndex,
     ],
   )
