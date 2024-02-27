@@ -63,7 +63,7 @@ export function DocumentTypesPopoverContent() {
 
     // Re-focus the command list input element
     commandListRef?.current?.focusInputElement()
-    commandListRef?.current?.selectIndex(0)
+    commandListRef?.current?.scrollToIndex(0)
   }, [dispatch])
 
   const getItemKey = useCallback(

@@ -46,7 +46,7 @@ export default function FilterableStory() {
     (e: KeyboardEvent<HTMLInputElement>) => {
       setFilter(e.currentTarget.value)
       if (filteredValues.length > 0) {
-        commandListRef?.current?.selectIndex(0)
+        commandListRef?.current?.scrollToIndex(0)
       }
     },
     [filteredValues],
@@ -60,7 +60,7 @@ export default function FilterableStory() {
   const handleClear = useCallback(() => {
     setFilter('')
     if (filteredValues.length > 0) {
-      commandListRef?.current?.selectIndex(0)
+      commandListRef?.current?.scrollToIndex(0)
     }
   }, [filteredValues.length])
 
