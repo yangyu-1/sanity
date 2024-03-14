@@ -1,6 +1,6 @@
 /* eslint-disable max-nested-callbacks */
 import {type PortableTextBlock} from '@sanity/types'
-import {debounce, isEqual} from 'lodash'
+import {debounce, difference, isEqual} from 'lodash'
 import {useCallback, useMemo, useRef} from 'react'
 import {type Descendant, Editor, type Node, Text, Transforms} from 'slate'
 import {useSlate} from 'slate-react'
@@ -271,6 +271,12 @@ function _updateBlock(
   currentBlockIndex: number,
 ) {
   // Update the root props on the block
+  const removedKeys = difference(Object.keys(oldBlock), Object.keys(currentBlock))
+  if (removedKeys.length > 0) {
+    Transforms.unsetNodes(slateEditor, removedKeys, {
+      at: [currentBlockIndex],
+    })
+  }
   Transforms.setNodes(slateEditor, currentBlock as Partial<Node>, {
     at: [currentBlockIndex],
   })
