@@ -273,7 +273,9 @@ function _updateBlock(
   // Update the root props on the block
   const removedKeys = difference(Object.keys(oldBlock), Object.keys(currentBlock))
   if (removedKeys.length > 0) {
-    Transforms.unsetNodes(slateEditor, removedKeys)
+    Transforms.unsetNodes(slateEditor, removedKeys, {
+      at: [currentBlockIndex],
+    })
   }
   Transforms.setNodes(slateEditor, currentBlock as Partial<Node>, {
     at: [currentBlockIndex],
