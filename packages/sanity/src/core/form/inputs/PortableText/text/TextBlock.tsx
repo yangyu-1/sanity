@@ -263,6 +263,13 @@ export function TextBlock(props: TextBlockProps) {
     [Markers, markers, renderCustomMarkers, tooltipEnabled, validation],
   )
 
+  const blockActionsVisible = renderBlockActions && focused && !readOnly
+  const changeIndicatorVisible = isFullscreen && memberItem
+  const reviewChangesHighlightVisible = reviewChangesHovered
+
+  const blockExtrasContainerVisible =
+    blockActionsVisible || changeIndicatorVisible || reviewChangesHighlightVisible
+
   return useMemo(
     () => (
       <Box
@@ -295,40 +302,49 @@ export function TextBlock(props: TextBlockProps) {
               </Tooltip>
             </Box>
 
-            <BlockExtrasContainer contentEditable={false}>
-              <BlockActionsOuter marginRight={1}>
-                <BlockActionsInner>
-                  {renderBlockActions && focused && !readOnly && (
-                    <BlockActions
-                      onChange={onChange}
-                      block={value}
-                      renderBlockActions={renderBlockActions}
+            {/*
+              Note that we only render the extras container if any children are present.
+              This is to avoid an issue where rendering an empty div (even with contenteditable="false")
+              will be errorneously focusable when using arrow keys
+            */}
+            {blockExtrasContainerVisible && (
+              <BlockExtrasContainer contentEditable={false}>
+                {blockActionsVisible && (
+                  <BlockActionsOuter marginRight={1}>
+                    <BlockActionsInner>
+                      <BlockActions
+                        onChange={onChange}
+                        block={value}
+                        renderBlockActions={renderBlockActions}
+                      />
+                    </BlockActionsInner>
+                  </BlockActionsOuter>
+                )}
+                {changeIndicatorVisible && (
+                  <ChangeIndicatorWrapper
+                    $hasChanges={memberItem.member.item.changed}
+                    onMouseEnter={handleChangeIndicatorMouseEnter}
+                    onMouseLeave={handleChangeIndicatorMouseLeave}
+                  >
+                    <StyledChangeIndicatorWithProvidedFullPath
+                      hasFocus={focused}
+                      isChanged={memberItem.member.item.changed}
+                      path={memberItem.member.item.path}
+                      withHoverEffect={false}
                     />
-                  )}
-                </BlockActionsInner>
-              </BlockActionsOuter>
-
-              {isFullscreen && memberItem && (
-                <ChangeIndicatorWrapper
-                  $hasChanges={memberItem.member.item.changed}
-                  onMouseEnter={handleChangeIndicatorMouseEnter}
-                  onMouseLeave={handleChangeIndicatorMouseLeave}
-                >
-                  <StyledChangeIndicatorWithProvidedFullPath
-                    hasFocus={focused}
-                    isChanged={memberItem.member.item.changed}
-                    path={memberItem.member.item.path}
-                    withHoverEffect={false}
-                  />
-                </ChangeIndicatorWrapper>
-              )}
-            </BlockExtrasContainer>
-            {reviewChangesHovered && <ReviewChangesHighlightBlock />}
+                  </ChangeIndicatorWrapper>
+                )}
+              </BlockExtrasContainer>
+            )}
+            {reviewChangesHighlightVisible && <ReviewChangesHighlightBlock />}
           </Flex>
         </TextBlockFlexWrapper>
       </Box>
     ),
     [
+      blockActionsVisible,
+      blockExtrasContainerVisible,
+      changeIndicatorVisible,
       componentProps,
       focused,
       handleChangeIndicatorMouseEnter,
@@ -337,14 +353,13 @@ export function TextBlock(props: TextBlockProps) {
       hasMarkers,
       hasWarning,
       innerPaddingProps,
-      isFullscreen,
       memberItem,
       onChange,
       outerPaddingProps,
       readOnly,
       renderBlock,
       renderBlockActions,
-      reviewChangesHovered,
+      reviewChangesHighlightVisible,
       spellCheck,
       toolTipContent,
       tooltipEnabled,
