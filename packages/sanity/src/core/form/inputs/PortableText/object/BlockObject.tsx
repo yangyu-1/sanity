@@ -282,7 +282,7 @@ export function BlockObject(props: BlockObjectProps) {
         ref={memberItem?.elementRef as RefObject<HTMLDivElement> | undefined}
         contentEditable={false}
       >
-        <Flex paddingBottom={1} marginY={3} style={debugRender()}>
+        <Flex data-object-block="" paddingBottom={1} marginY={3} style={debugRender()}>
           <InnerFlex flex={1}>
             <Tooltip
               placement="top"
@@ -291,7 +291,7 @@ export function BlockObject(props: BlockObjectProps) {
               disabled={isOpen ? true : !tooltipEnabled}
               content={toolTipContent}
             >
-              <PreviewContainer {...innerPaddingProps}>
+              <PreviewContainer data-object-block-inner="" {...innerPaddingProps}>
                 {renderBlock && renderBlock(componentProps)}
               </PreviewContainer>
             </Tooltip>
