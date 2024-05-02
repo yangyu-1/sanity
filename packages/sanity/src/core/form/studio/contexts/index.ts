@@ -1,4 +1,5 @@
 export * from './DocumentFieldActions'
 export * from './FormCallbacks'
+export {PresenceProvider} from './Presence'
 export * from './ReferenceInputOptions'
 export * from './reviewChanges'
