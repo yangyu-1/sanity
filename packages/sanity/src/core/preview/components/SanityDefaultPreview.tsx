@@ -52,6 +52,8 @@ export function SanityDefaultPreview(props: SanityDefaultPreviewProps): ReactEle
       const {dimensions} = options
       let imageSource = mediaProp
 
+      // If this is a string and a valid Sanity Image URL, parse it so that we can
+      // pass it as a valid asset ID to the image builder
       if (isString(imageSource) && isSanityImageUrl(imageSource)) {
         const {assetId} = parseImageAssetUrl(imageSource)
 
@@ -97,16 +99,16 @@ export function SanityDefaultPreview(props: SanityDefaultPreviewProps): ReactEle
       return renderMedia
     }
 
+    if (isImageSource(mediaProp)) {
+      return renderMedia
+    }
+
     if (isValidElementType(mediaProp)) {
       return mediaProp
     }
 
     if (isValidElement(mediaProp)) {
       return mediaProp
-    }
-
-    if (isImageSource(mediaProp)) {
-      return renderMedia
     }
 
     // Handle image urls
