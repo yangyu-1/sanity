@@ -68,7 +68,7 @@ export function ReferenceField(props: ReferenceFieldProps) {
   const handleClear = useCallback(() => inputProps.onChange(unset()), [inputProps])
   const value: Reference | undefined = props.value as any
 
-  const {EditReferenceLink, getReferenceInfo, selectedState, isCurrentDocumentLiveEdit} =
+  const {EditReferenceLink, getReferenceInfo, activeState, isCurrentDocumentLiveEdit} =
     useReferenceInput({
       path,
       schemaType,
@@ -95,8 +95,8 @@ export function ReferenceField(props: ReferenceFieldProps) {
   const refType = refTypeName
     ? schemaType.to.find((toType) => toType.name === refTypeName)
     : undefined
-  const pressed = selectedState === 'pressed'
-  const selected = selectedState === 'selected'
+  const pressed = activeState === 'pressed'
+  const selected = activeState === 'active'
 
   const hasRef = value?._ref
   const publishedReferenceExists = hasRef && loadableReferenceInfo.result?.preview?.published?._id
