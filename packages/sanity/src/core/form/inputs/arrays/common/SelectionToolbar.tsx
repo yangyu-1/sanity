@@ -43,7 +43,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
   }, [onItemUnselect, selectedItemKeys])
 
   const allSelected = selectedItemKeys.length === allKeys.length
-  const itemTxt = <>item{selectedItemKeys.length === 1 ? '' : 's'}</>
+  const itemTxt = (len: number) => <>item{len === 1 ? '' : 's'}</>
 
   const {onCopy} = useCopyPaste()
   const getFormValue = useGetFormValue()
@@ -103,7 +103,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
           </Inline>
           <Inline space={1}>
             <Text size={1} muted>
-              {selectedItemKeys.length} {itemTxt} selected
+              {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)} selected
             </Text>
           </Inline>
         </Flex>
@@ -118,7 +118,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 tooltipProps={{
                   content: (
                     <Text size={1}>
-                      Remove {selectedItemKeys.length} {itemTxt}
+                      Remove {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
                     </Text>
                   ),
                 }}
@@ -131,7 +131,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 tooltipProps={{
                   content: (
                     <Text size={1}>
-                      Copy {selectedItemKeys.length} {itemTxt}
+                      Copy {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
                     </Text>
                   ),
                 }}

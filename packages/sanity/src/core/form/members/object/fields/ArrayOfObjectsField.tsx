@@ -376,10 +376,14 @@ export function ArrayOfObjectsField(props: {
   )
 
   const handleSelectedItemsRemove = useCallback(() => {
-    selectionState.currentSelection.forEach((key) => {
-      handleRemoveItem(key)
+    const toRemove = selectionState.currentSelection
+    selectionState.currentSelection.forEach((key) => handleRemoveItem(key))
+    toast.push({
+      title: `Removed ${toRemove.length} item${toRemove.length === 1 ? '' : 's'}`,
+      status: 'success',
+      closable: true,
     })
-  }, [handleRemoveItem, selectionState])
+  }, [handleRemoveItem, selectionState.currentSelection, toast])
 
   const handleFocusChildPath = useCallback(
     (path: Path, payload?: OnPathFocusPayload) => {
@@ -404,6 +408,10 @@ export function ArrayOfObjectsField(props: {
 
   const supportsImageUploads = formBuilder.__internal.image.directUploads
   const supportsFileUploads = formBuilder.__internal.file.directUploads
+
+  useEffect(() => {
+    setSelectionState((currentSelectionState) => unselectMissing(currentSelectionState, itemKeys))
+  }, [itemKeys])
 
   const resolveUploader = useCallback(
     (type: SchemaType, file: FileLike) => {
@@ -673,6 +681,15 @@ function selectRange<T>(state: SelectionState<T>, items: T[], item: T): Selectio
   const toSelect = items.slice(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex) + 1)
 
   return toSelect.reduce((acc, i) => select(acc, i), state)
+}
+
+function unselectMissing<T>(state: SelectionState<T>, items: T[]): SelectionState<T> {
+  return {
+    ...state,
+    lastSelected:
+      state.lastSelected && items.includes(state.lastSelected) ? state.lastSelected : undefined,
+    currentSelection: state.currentSelection.filter((selectedItem) => items.includes(selectedItem)),
+  }
 }
 
 function getClosest<T>(selection: T[], items: T[], item: T) {
