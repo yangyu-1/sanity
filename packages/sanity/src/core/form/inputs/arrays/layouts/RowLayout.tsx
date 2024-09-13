@@ -95,9 +95,9 @@ export function RowLayout(props: RowLayoutProps) {
       <Stack space={1}>
         <Flex align="center" gap={1}>
           {selectable ? (
-            <Box paddingX={1}>
+            <Flex as="label" padding={1}>
               <Checkbox checked={selected} onClick={handleSelectionChange} />
-            </Box>
+            </Flex>
           ) : (
             dragHandle && <DragHandle paddingY={3} readOnly={readOnly} />
           )}

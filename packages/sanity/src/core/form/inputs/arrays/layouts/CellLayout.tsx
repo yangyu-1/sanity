@@ -119,7 +119,7 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
 
       {selectable ? (
         <CheckBoxCard>
-          <Card display="flex" margin={0} padding={2} radius={2} tone="inherit">
+          <Card as="label" display="flex" margin={0} padding={2} radius={2} tone="inherit">
             <Checkbox checked={selected} onClick={handleSelectionChange} />
           </Card>
         </CheckBoxCard>
