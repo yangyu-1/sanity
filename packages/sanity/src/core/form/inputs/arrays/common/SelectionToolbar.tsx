@@ -24,7 +24,7 @@ interface SelectionToolbarProps {
 const StickyCard = styled(Card)`
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 400;
 `
 
 export function SelectionToolbar(props: SelectionToolbarProps) {
