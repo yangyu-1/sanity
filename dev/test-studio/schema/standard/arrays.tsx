@@ -116,7 +116,7 @@ export default defineType({
       components: {
         field: (props: any) => {
           return (
-            <div style={{border: '1px solid palegreen', borderRadius: 4}}>
+            <div style={{border: '1px solid #a95d90', borderRadius: 4}}>
               {props.renderDefault({
                 ...props,
                 title: undefined,

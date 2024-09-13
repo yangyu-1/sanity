@@ -2,6 +2,7 @@ import {ChevronDownIcon, CloseIcon, CopyIcon, TrashIcon} from '@sanity/icons'
 import {type Path} from '@sanity/types'
 import {Card, Checkbox, Flex, Inline, Menu, Text} from '@sanity/ui'
 import {useCallback} from 'react'
+import {styled} from 'styled-components'
 
 import {Button, MenuButton, MenuItem} from '../../../../../ui-components'
 import {useCopyPaste} from '../../../../studio'
@@ -19,6 +20,13 @@ interface SelectionToolbarProps {
   onSelectedItemsRemove: () => void
   onSelectEnd: () => void
 }
+
+const StickyCard = styled(Card)`
+  position: sticky;
+  top: 0;
+  z-index: 1;
+`
+
 export function SelectionToolbar(props: SelectionToolbarProps) {
   const {
     invalidItemKeys,
@@ -57,7 +65,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
   }, [getFormValue, onCopy, path, selectedItemKeys])
 
   return (
-    <Card as={Flex} paddingX={2} paddingY={2} border tone="primary" radius={2}>
+    <StickyCard display="flex" padding={2} border tone="primary" radius={2}>
       <>
         <Flex flex={1} gap={3} paddingLeft={1} align="center" justify="flex-start">
           <Inline space={2}>
@@ -147,6 +155,6 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
           />
         </Flex>
       </>
-    </Card>
+    </StickyCard>
   )
 }
