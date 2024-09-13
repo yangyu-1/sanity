@@ -1,6 +1,7 @@
 import {type DragStartEvent} from '@dnd-kit/core'
-import {isKeySegment} from '@sanity/types'
+import {isKeySegment, type KeyedSegment} from '@sanity/types'
 import {Card, Stack, Text, useTheme} from '@sanity/ui'
+import * as PathUtils from '@sanity/util/paths'
 import {
   defaultRangeExtractor,
   elementScroll,
@@ -13,8 +14,10 @@ import shallowEquals from 'shallow-equals'
 
 import {useTranslation} from '../../../../../i18n'
 import {ArrayOfObjectsItem} from '../../../../members'
+import {useChildValidation} from '../../../../studio/contexts/Validation'
 import {type ArrayOfObjectsInputProps, type ObjectItem} from '../../../../types'
 import {Item, List} from '../../common/list'
+import {SelectionToolbar} from '../../common/SelectionToolbar'
 import {UploadTargetCard} from '../../common/UploadTargetCard'
 import {ArrayOfObjectsFunctions} from '../ArrayOfObjectsFunctions'
 import {createProtoArrayValue} from '../createProtoArrayValue'
@@ -30,7 +33,14 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     elementProps,
     members,
     onChange,
+    id,
     onInsert,
+    selectedItemKeys,
+    onSelectEnd,
+    selectActive,
+    onItemSelect,
+    onItemUnselect,
+    onSelectedItemsRemove,
     onItemMove,
     onUpload,
     focusPath,
@@ -46,10 +56,12 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     renderPreview,
     resolveUploader,
     schemaType,
+    path,
     value = EMPTY,
   } = props
   const {t} = useTranslation()
 
+  const childValidation = useChildValidation(path)
   // Stores the index of the item being dragged
   const [activeDragItemIndex, setActiveDragItemIndex] = useState<number | null>(null)
   const {space} = useTheme().sanity
@@ -175,8 +187,28 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
   const paddingY = 1
   const radius = 2
 
+  const invalidItemKeys = childValidation.flatMap(
+    (validationItem) =>
+      (validationItem.level === 'error' &&
+        (PathUtils.trimLeft(path, validationItem.path)[0] as KeyedSegment)?._key) ||
+      [],
+  )
+
   return (
     <Stack space={2} ref={parentRef}>
+      {selectActive && (
+        <SelectionToolbar
+          path={path}
+          id={`${id}-selectionToolbar`}
+          selectedItemKeys={selectedItemKeys}
+          invalidItemKeys={invalidItemKeys}
+          allKeys={memberKeys}
+          onSelectedItemsRemove={onSelectedItemsRemove}
+          onSelectEnd={onSelectEnd}
+          onItemSelect={onItemSelect}
+          onItemUnselect={onItemUnselect}
+        />
+      )}
       <UploadTargetCard
         $radius={radius}
         types={schemaType.of}

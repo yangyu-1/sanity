@@ -1,15 +1,19 @@
 /* eslint-disable react/jsx-handler-names */
+import {type KeyedSegment} from '@sanity/types'
 import {Card, Stack, Text} from '@sanity/ui'
+import * as PathUtils from '@sanity/util/paths'
 import {useCallback, useMemo} from 'react'
 
 import {useTranslation} from '../../../../../i18n'
 import {ArrayOfObjectsItem} from '../../../../members'
+import {useChildValidation} from '../../../../studio/contexts/Validation'
 import {
   type ArrayOfObjectsInputProps,
   type ObjectItem,
   type ObjectItemProps,
 } from '../../../../types'
 import {Item, List} from '../../common/list'
+import {SelectionToolbar} from '../../common/SelectionToolbar'
 import {UploadTargetCard} from '../../common/UploadTargetCard'
 import {ArrayOfObjectsFunctions} from '../ArrayOfObjectsFunctions'
 import {createProtoArrayValue} from '../createProtoArrayValue'
@@ -23,6 +27,15 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     arrayFunctions: ArrayFunctions = ArrayOfObjectsFunctions,
     elementProps,
     members,
+    path,
+    id,
+    selectedItemKeys,
+    onSelectedItemsRemove,
+    selectActive,
+    onSelectEnd,
+    onItemUnselect,
+    onSelectBegin,
+    onItemSelect,
     onChange,
     onItemPrepend,
     onItemAppend,
@@ -49,9 +62,30 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
   }, [])
 
   const memberKeys = useMemo(() => members.map((member) => member.key), [members])
+  const childValidation = useChildValidation(path)
+
+  const invalidItemKeys = childValidation.flatMap(
+    (validationItem) =>
+      (validationItem.level === 'error' &&
+        (PathUtils.trimLeft(path, validationItem.path)[0] as KeyedSegment)?._key) ||
+      [],
+  )
 
   return (
     <Stack space={2}>
+      {selectActive && (
+        <SelectionToolbar
+          path={path}
+          id={`${id}-selectionToolbar`}
+          selectedItemKeys={selectedItemKeys}
+          invalidItemKeys={invalidItemKeys}
+          allKeys={memberKeys}
+          onSelectedItemsRemove={onSelectedItemsRemove}
+          onSelectEnd={onSelectEnd}
+          onItemSelect={onItemSelect}
+          onItemUnselect={onItemUnselect}
+        />
+      )}
       <UploadTargetCard
         types={schemaType.of}
         resolveUploader={resolveUploader}

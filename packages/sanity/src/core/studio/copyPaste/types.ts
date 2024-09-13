@@ -57,6 +57,7 @@ export interface BaseOptions {
  */
 export interface CopyOptions extends BaseOptions {
   patchType?: 'replace' | 'append'
+  selection?: Path[]
 }
 
 /**

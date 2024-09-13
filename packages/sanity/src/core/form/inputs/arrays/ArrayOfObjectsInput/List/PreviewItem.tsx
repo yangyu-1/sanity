@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary, react/jsx-no-bind */
-import {AddDocumentIcon, CopyIcon, TrashIcon} from '@sanity/icons'
+import {AddDocumentIcon, CheckmarkCircleIcon, CircleIcon, CopyIcon, TrashIcon} from '@sanity/icons'
 import {type SchemaType} from '@sanity/types'
 import {Box, Card, type CardTone, Menu} from '@sanity/ui'
 import {useCallback, useMemo, useRef, useState} from 'react'
@@ -57,6 +57,10 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
     value,
     open,
     onInsert,
+    onSelect,
+    onUnselect,
+    selected,
+    selectable,
     onCopy,
     onFocus,
     onOpen,
@@ -168,6 +172,12 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
                   icon={TrashIcon}
                   onClick={onRemove}
                 />
+                {selected ? (
+                  <MenuItem text="Unselect" icon={CircleIcon} onClick={onUnselect} />
+                ) : (
+                  <MenuItem text="Select" icon={CheckmarkCircleIcon} onClick={() => onSelect()} />
+                )}
+
                 <MenuItem
                   text={t('inputs.array.action.copy')}
                   icon={CopyIcon}
@@ -188,19 +198,35 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
           {insertAfter.popover}
         </>
       ),
-    [readOnly, insertBefore, insertAfter, props.inputId, t, onRemove, handleCopy, handleDuplicate],
+    [
+      readOnly,
+      insertBefore,
+      insertAfter,
+      props.inputId,
+      t,
+      onRemove,
+      selected,
+      onUnselect,
+      onSelect,
+      handleCopy,
+      handleDuplicate,
+    ],
   )
 
   const tone = getTone({readOnly, hasErrors, hasWarnings})
   const item = (
     <RowLayout
       menu={menu}
+      onSelect={onSelect}
+      onUnselect={onUnselect}
+      selected={selected}
+      selectable={selectable}
       presence={presence}
       validation={validation}
       tone={tone}
       focused={focused}
       dragHandle={sortable}
-      selected={open}
+      open={open}
       readOnly={!!readOnly}
     >
       <Card

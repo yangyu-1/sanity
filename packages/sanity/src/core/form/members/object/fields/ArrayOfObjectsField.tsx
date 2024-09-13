@@ -1,7 +1,16 @@
 import {type Path, type SchemaType} from '@sanity/types'
 import {useToast} from '@sanity/ui'
 import {get} from 'lodash'
-import {type FocusEvent, useCallback, useEffect, useMemo, useRef} from 'react'
+import {
+  createContext,
+  type FocusEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {type Subscription} from 'rxjs'
 import {map, tap} from 'rxjs/operators'
 
@@ -37,6 +46,50 @@ import {ensureKey} from '../../../utils/ensureKey'
 import * as is from '../../../utils/is'
 import {createDescriptionId} from '../../common/createDescriptionId'
 import {resolveInitialArrayValues} from '../../common/resolveInitialArrayValues'
+
+interface ArrayInputContextProviderValue {
+  active: boolean
+  /**
+   * @hidden
+   * @beta */
+  selectedItemKeys: string[]
+  /**
+   * @hidden
+   * @beta */
+  onItemSelect: (itemKeys: string, range?: boolean) => void
+
+  /**
+   * @hidden
+   * @beta */
+  onItemUnselect: (itemKey: string) => void
+
+  onSelectBegin: () => void
+  onSelectEnd: () => void
+  /**
+   * @hidden
+   * @beta */
+  onSelectedItemsRemove: () => void
+}
+const context = createContext<ArrayInputContextProviderValue | undefined>(undefined)
+
+const ArrayInputContextProvider = context.Provider
+
+const EMPTY_SELECTION_STATE: SelectionState<string> = {
+  active: false,
+  currentSelection: [],
+}
+
+export function useParentArrayInput(): ArrayInputContextProviderValue | undefined
+export function useParentArrayInput(throwIfMissing: true): ArrayInputContextProviderValue
+export function useParentArrayInput(
+  throwIfMissing?: boolean,
+): ArrayInputContextProviderValue | undefined {
+  const ctx = useContext(context)
+  if (throwIfMissing && !ctx) {
+    throw new Error('Parent array input context missing')
+  }
+  return ctx
+}
 
 /**
  * Responsible for creating inputProps and fieldProps to pass to ´renderInput´ and ´renderField´ for an array input
@@ -75,6 +128,8 @@ export function ArrayOfObjectsField(props: {
   } = props
 
   const fieldActions = useDocumentFieldActions()
+  const [selectionState, setSelectionState] =
+    useState<SelectionState<string>>(EMPTY_SELECTION_STATE)
 
   const focusRef = useRef<Element & {focus: () => void}>()
   const uploadSubscriptions = useRef<Record<string, Subscription>>({})
@@ -295,6 +350,37 @@ export function ArrayOfObjectsField(props: {
     [handleChange],
   )
 
+  const handleUnselectItem = useCallback((itemKey: string) => {
+    setSelectionState((current) => unselect(current, itemKey))
+  }, [])
+
+  const handleSelectBegin = useCallback(() => {
+    setSelectionState((current) => setActive(current, true))
+  }, [])
+
+  const handleSelectEnd = useCallback(() => {
+    setSelectionState((current) => setActive(current, false))
+  }, [])
+
+  const itemKeys = useMemo(() => {
+    return member.field.members.map((item) => item.key)
+  }, [member.field.members])
+
+  const handleSelectItem = useCallback(
+    (itemKey: string, range?: boolean) => {
+      setSelectionState((current) =>
+        range ? selectRange(current, itemKeys, itemKey) : select(current, itemKey),
+      )
+    },
+    [itemKeys],
+  )
+
+  const handleSelectedItemsRemove = useCallback(() => {
+    selectionState.currentSelection.forEach((key) => {
+      handleRemoveItem(key)
+    })
+  }, [handleRemoveItem, selectionState])
+
   const handleFocusChildPath = useCallback(
     (path: Path, payload?: OnPathFocusPayload) => {
       onPathFocus(member.field.path.concat(path), payload)
@@ -381,13 +467,19 @@ export function ArrayOfObjectsField(props: {
 
       focusPath: member.field.focusPath,
       focused: member.field.focused,
-
       path: member.field.path,
 
       onChange: handleChange,
       onInsert: handleInsert,
       onItemMove: handleMoveItem,
       onItemRemove: handleRemoveItem,
+      selectActive: selectionState.active,
+      onItemSelect: handleSelectItem,
+      onItemUnselect: handleUnselectItem,
+      onSelectBegin: handleSelectBegin,
+      onSelectEnd: handleSelectEnd,
+      selectedItemKeys: selectionState.currentSelection,
+      onSelectedItemsRemove: handleSelectedItemsRemove,
       onItemAppend: handleItemAppend,
       onItemPrepend: handleItemPrepend,
       onPathFocus: handleFocusChildPath,
@@ -428,6 +520,13 @@ export function ArrayOfObjectsField(props: {
     handleRemoveItem,
     handleItemAppend,
     handleItemPrepend,
+    selectionState.active,
+    selectionState.currentSelection,
+    handleSelectItem,
+    handleUnselectItem,
+    handleSelectBegin,
+    handleSelectEnd,
+    handleSelectedItemsRemove,
     handleFocusChildPath,
     resolveInitialValue,
     handleUpload,
@@ -496,7 +595,102 @@ export function ArrayOfObjectsField(props: {
       onPathBlur={onPathBlur}
       onPathFocus={onPathFocus}
     >
-      {useMemo(() => renderField(fieldProps), [fieldProps, renderField])}
+      {useMemo(
+        () => (
+          <ArrayInputContextProvider
+            value={{
+              active: selectionState.active,
+              onSelectedItemsRemove: fieldProps.inputProps.onSelectedItemsRemove,
+              onItemSelect: fieldProps.inputProps.onItemSelect,
+              onItemUnselect: fieldProps.inputProps.onItemUnselect,
+              onSelectBegin: fieldProps.inputProps.onSelectBegin,
+              onSelectEnd: fieldProps.inputProps.onSelectEnd,
+              selectedItemKeys: fieldProps.inputProps.selectedItemKeys,
+            }}
+          >
+            {renderField(fieldProps)}
+          </ArrayInputContextProvider>
+        ),
+        [fieldProps, renderField, selectionState.active],
+      )}
     </FormCallbacksProvider>
   )
+}
+
+interface SelectionState<T> {
+  active: boolean
+  lastSelected?: T
+  currentSelection: T[]
+}
+
+// this assumes items are not already in array
+function select<T>(state: SelectionState<T>, item: T): SelectionState<T> {
+  const nextCurrentSelection: T[] = []
+
+  let alreadySelected = false
+  for (let i = 0; i < state.currentSelection.length; i++) {
+    if (state.currentSelection[i] === item) {
+      alreadySelected = true
+    }
+    nextCurrentSelection[i] = state.currentSelection[i]
+  }
+  if (!alreadySelected) {
+    nextCurrentSelection.push(item)
+  }
+
+  return {...state, active: true, lastSelected: item, currentSelection: nextCurrentSelection}
+}
+
+// this assumes items are not already in array
+function unselect<T>(state: SelectionState<T>, item: T): SelectionState<T> {
+  return {
+    ...state,
+    lastSelected: undefined,
+    currentSelection: state.currentSelection.filter((i) => i !== item),
+  }
+}
+
+// this assumes items are not already in array
+function setActive<T>(state: SelectionState<T>, active: boolean): SelectionState<T> {
+  return {
+    ...state,
+    active,
+    lastSelected: undefined,
+    currentSelection: [],
+  }
+}
+
+function selectRange<T>(state: SelectionState<T>, items: T[], item: T): SelectionState<T> {
+  const fromItem = state.lastSelected || getClosest(state.currentSelection, items, item)
+
+  if (!fromItem) {
+    return select(state, item)
+  }
+
+  const fromIndex = fromItem ? items.indexOf(fromItem) : 0
+  const toIndex = items.indexOf(item)
+
+  const toSelect = items.slice(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex) + 1)
+
+  return toSelect.reduce((acc, i) => select(acc, i), state)
+}
+
+function getClosest<T>(selection: T[], items: T[], item: T) {
+  const index = items.indexOf(item)
+  let above
+  let below
+  for (let dist = 0; dist < items.length; dist++) {
+    const up = index - dist
+    const down = index + dist
+    if (!above && selection.includes(items[up])) {
+      above = items[up]
+    }
+    if (!below && selection.includes(items[down])) {
+      below = items[down]
+    }
+    if (above && below) {
+      break
+    }
+  }
+  return above || below
 }

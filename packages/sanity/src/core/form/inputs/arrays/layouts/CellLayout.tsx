@@ -1,5 +1,5 @@
-import {Box, Card, type CardTone, Flex} from '@sanity/ui'
-import {type ComponentProps, type ReactNode} from 'react'
+import {Box, Card, type CardTone, Checkbox, Flex} from '@sanity/ui'
+import {type ComponentProps, type MouseEventHandler, type ReactNode, useCallback} from 'react'
 import {styled} from 'styled-components'
 
 import {DragHandle} from '../common/DragHandle'
@@ -12,7 +12,10 @@ interface RowLayoutProps {
   validation?: ReactNode
   menu?: ReactNode
   footer?: ReactNode
-  selected?: boolean
+  selectable?: boolean
+  onSelect: (range?: boolean) => void
+  onUnselect?: () => void
+  open?: boolean
   children?: ReactNode
 }
 
@@ -31,6 +34,13 @@ const DragHandleCard = styled(Card)`
   top: 0;
   left: 0;
 `
+
+const CheckBoxCard = styled(Flex)`
+  position: absolute;
+  top: 0;
+  left: 0;
+`
+
 const Root = styled(Card)`
   transition: border-color 250ms;
   box-sizing: border-box;
@@ -65,13 +75,17 @@ const Root = styled(Card)`
 /**
  * Use this to get the layout for grid items
  */
-export function CellLayout(props: RowLayoutProps & ComponentProps<typeof Root>) {
+export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Root>, 'onSelect'>) {
   const {
     validation,
     selected,
     tone,
     presence,
     children,
+    selectable,
+    open,
+    onSelect,
+    onUnselect,
     dragHandle,
     menu,
     footer,
@@ -79,29 +93,48 @@ export function CellLayout(props: RowLayoutProps & ComponentProps<typeof Root>) 
     ...rest
   } = props
 
+  const handleSelectionChange = useCallback(
+    (event) => {
+      if (event.currentTarget.checked) {
+        onSelect?.(event.shiftKey)
+      } else {
+        onUnselect?.()
+      }
+    },
+    [onSelect, onUnselect],
+  ) satisfies MouseEventHandler<HTMLInputElement>
+
   return (
     <Root
       forwardedAs={Flex}
       direction="column"
       border
-      selected={selected}
-      aria-selected={selected}
+      selected={selected || open}
+      aria-selected={selected || open}
       radius={1}
       tone={tone}
       {...rest}
     >
       {children}
 
-      {dragHandle && (
-        <DragHandleCard
-          margin={1}
-          radius={2}
-          display="flex"
-          tone="inherit"
-          data-ui="DragHandleCard"
-        >
-          <DragHandle $grid mode="ghost" readOnly={!!readOnly} />
-        </DragHandleCard>
+      {selectable ? (
+        <CheckBoxCard>
+          <Card display="flex" margin={0} padding={2} radius={2} tone="inherit">
+            <Checkbox checked={selected} onClick={handleSelectionChange} />
+          </Card>
+        </CheckBoxCard>
+      ) : (
+        dragHandle && (
+          <DragHandleCard
+            margin={1}
+            radius={2}
+            display="flex"
+            tone="inherit"
+            data-ui="DragHandleCard"
+          >
+            <DragHandle $grid mode="ghost" readOnly={!!readOnly} />
+          </DragHandleCard>
+        )
       )}
 
       {presence && (

@@ -79,7 +79,7 @@ export function useReferenceInput(options: Options) {
     [onEditReference, path],
   )
 
-  const selectedState = PathUtils.startsWith(path, activePath?.path || [])
+  const activeState = PathUtils.startsWith(path, activePath?.path || [])
     ? activePath?.state
     : 'none'
 
@@ -118,7 +118,7 @@ export function useReferenceInput(options: Options) {
   )
 
   return {
-    selectedState,
+    activeState,
     isCurrentDocumentLiveEdit,
     handleEditReference,
     EditReferenceLink,

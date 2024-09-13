@@ -1,5 +1,5 @@
-import {Box, Card, type CardTone, Flex, Stack} from '@sanity/ui'
-import {type ReactNode, useRef} from 'react'
+import {Box, Card, type CardTone, Checkbox, Flex, Stack} from '@sanity/ui'
+import {type MouseEventHandler, type ReactNode, useCallback, useRef} from 'react'
 import {styled} from 'styled-components'
 
 import {useDidUpdate} from '../../../hooks/useDidUpdate'
@@ -9,12 +9,16 @@ import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 interface RowLayoutProps {
   tone?: CardTone
   dragHandle?: boolean
+  onSelect?: (range: boolean) => void
+  onUnselect?: () => void
   focused?: boolean
   presence?: ReactNode
   validation?: ReactNode
   menu?: ReactNode
   footer?: ReactNode
   selected?: boolean
+  selectable?: boolean
+  open?: boolean
   children?: ReactNode
   readOnly: boolean
 }
@@ -45,10 +49,14 @@ const Root = styled(Card)`
 export function RowLayout(props: RowLayoutProps) {
   const {
     validation,
-    selected,
+    open,
     tone,
     presence,
     focused,
+    onSelect,
+    onUnselect,
+    selected,
+    selectable,
     children,
     dragHandle,
     menu,
@@ -64,18 +72,35 @@ export function RowLayout(props: RowLayoutProps) {
     }
   })
 
+  const handleSelectionChange = useCallback(
+    (event) => {
+      if (event.currentTarget.checked) {
+        onSelect?.(event.shiftKey)
+      } else {
+        onUnselect?.()
+      }
+    },
+    [onSelect, onUnselect],
+  ) satisfies MouseEventHandler<HTMLInputElement>
+
   return (
     <Root
       ref={elementRef}
-      selected={selected}
-      aria-selected={selected}
+      selected={selected || open}
+      aria-selected={selected || open}
       radius={1}
       padding={1}
       tone={tone}
     >
       <Stack space={1}>
         <Flex align="center" gap={1}>
-          {dragHandle && <DragHandle paddingY={3} readOnly={readOnly} />}
+          {selectable ? (
+            <Box paddingX={1}>
+              <Checkbox checked={selected} onClick={handleSelectionChange} />
+            </Box>
+          ) : (
+            dragHandle && <DragHandle paddingY={3} readOnly={readOnly} />
+          )}
 
           <Box flex={1}>{children}</Box>
 

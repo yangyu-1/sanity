@@ -1,5 +1,7 @@
 import {
   AddDocumentIcon,
+  CheckmarkCircleIcon,
+  CircleIcon,
   CloseIcon,
   CopyIcon,
   LaunchIcon as OpenInNewTabIcon,
@@ -83,6 +85,10 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
     open,
     onInsert,
     onCopy,
+    selected,
+    onSelect,
+    onUnselect,
+    selectable,
     presence,
     validation,
     inputId,
@@ -100,7 +106,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  const {EditReferenceLink, getReferenceInfo, selectedState, isCurrentDocumentLiveEdit} =
+  const {EditReferenceLink, getReferenceInfo, activeState, isCurrentDocumentLiveEdit} =
     useReferenceInput({
       path,
       schemaType,
@@ -159,8 +165,8 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
   const refType = refTypeName
     ? schemaType.to.find((toType) => toType.name === refTypeName)
     : undefined
-  const pressed = selectedState === 'pressed'
-  const selected = selectedState === 'selected'
+  const pressed = activeState === 'pressed'
+  const active = activeState === 'active'
 
   const tone = getTone({readOnly, hasErrors, hasWarnings})
   const isEditing = !hasRef || focusPath[0] === '_ref'
@@ -245,6 +251,15 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
                       icon={hasRef && isEditing ? CloseIcon : ReplaceIcon}
                       onClick={handleReplace}
                     />
+                    {selected ? (
+                      <MenuItem text="Unselect" icon={CircleIcon} onClick={onUnselect} />
+                    ) : (
+                      <MenuItem
+                        text="Select"
+                        icon={CheckmarkCircleIcon}
+                        onClick={() => onSelect()}
+                      />
+                    )}
                     <MenuItem
                       text={t('inputs.reference.action.copy')}
                       icon={CopyIcon}
@@ -344,6 +359,10 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
       containerRef={containerRef}
     >
       <RowLayout
+        selected={selected}
+        onUnselect={onUnselect}
+        onSelect={onSelect}
+        selectable={selectable}
         dragHandle={sortable}
         readOnly={!!readOnly}
         presence={
@@ -380,7 +399,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
             documentType={refType?.name}
             disabled={resolvingInitialValue}
             __unstable_focusRing
-            selected={selected}
+            selected={active}
             pressed={pressed}
             data-selected={selected ? true : undefined}
             data-pressed={pressed ? true : undefined}
