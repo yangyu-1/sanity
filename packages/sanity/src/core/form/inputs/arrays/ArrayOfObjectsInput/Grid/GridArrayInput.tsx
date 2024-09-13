@@ -34,7 +34,6 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     selectActive,
     onSelectEnd,
     onItemUnselect,
-    onSelectBegin,
     onItemSelect,
     onChange,
     onItemPrepend,
