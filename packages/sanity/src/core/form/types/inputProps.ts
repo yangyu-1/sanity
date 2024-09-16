@@ -232,7 +232,13 @@ export interface ArrayOfObjectsInputProps<
   /**
    * @hidden
    * @beta */
-  onItemSelect: (itemKeys: string, range?: boolean) => void
+  onItemSelect: (
+    itemKey: string,
+    options?: {shiftKey?: boolean; metaKey?: boolean; force?: boolean},
+  ) => void
+
+  onSelectAll: () => void
+  onSelectNone: () => void
 
   /**
    * @hidden

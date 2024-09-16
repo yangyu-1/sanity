@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-handler-names */
-import {type KeyedSegment} from '@sanity/types'
+import {isFileSchemaType, isImageSchemaType, type KeyedSegment} from '@sanity/types'
 import {Card, Stack, Text} from '@sanity/ui'
 import * as PathUtils from '@sanity/util/paths'
 import {useCallback, useMemo} from 'react'
@@ -35,6 +35,7 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     onSelectEnd,
     onItemUnselect,
     onItemSelect,
+    onSelectBegin,
     onChange,
     onItemPrepend,
     onItemAppend,
@@ -69,82 +70,92 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
         (PathUtils.trimLeft(path, validationItem.path)[0] as KeyedSegment)?._key) ||
       [],
   )
+  const acceptsImagesOrFiles = useMemo(() => {
+    return schemaType.of.some(
+      (itemType) => isImageSchemaType(itemType) || isFileSchemaType(itemType),
+    )
+  }, [schemaType])
 
   return (
     <Stack space={2}>
-      {selectActive && (
-        <SelectionToolbar
-          path={path}
-          id={`${id}-selectionToolbar`}
-          selectedItemKeys={selectedItemKeys}
-          invalidItemKeys={invalidItemKeys}
-          allKeys={memberKeys}
-          onSelectedItemsRemove={onSelectedItemsRemove}
-          onSelectEnd={onSelectEnd}
-          onItemSelect={onItemSelect}
-          onItemUnselect={onItemUnselect}
-        />
-      )}
-      <UploadTargetCard
-        types={schemaType.of}
-        resolveUploader={resolveUploader}
-        onUpload={onUpload}
-        {...elementProps}
-        tabIndex={0}
-      >
-        <Stack data-ui="ArrayInput__content" space={2}>
-          {members?.length === 0 && (
-            <Card padding={3} border radius={2}>
-              <Text align="center" muted size={1}>
-                {schemaType.placeholder || <>{t('inputs.array.no-items-label')}</>}
-              </Text>
-            </Card>
-          )}
-          {members?.length > 0 && (
-            <Card border radius={1}>
-              <List
-                columns={[2, 3, 4]}
-                gap={3}
-                padding={1}
-                margin={1}
-                items={memberKeys}
-                onItemMove={onItemMove}
-                sortable={sortable}
-              >
-                {members.map((member) => (
-                  <Item key={member.key} sortable={sortable} id={member.key} flex={1}>
-                    {member.kind === 'item' && (
-                      <ArrayOfObjectsItem
-                        member={member}
-                        renderAnnotation={renderAnnotation}
-                        renderBlock={renderBlock}
-                        renderInlineBlock={renderInlineBlock}
-                        renderItem={renderItem}
-                        renderField={renderField}
-                        renderInput={renderInput}
-                        renderPreview={renderPreview}
-                      />
-                    )}
-                    {member.kind === 'error' && (
-                      <ErrorItem sortable={sortable} member={member} readOnly={readOnly} />
-                    )}
-                  </Item>
-                ))}
-              </List>
-            </Card>
-          )}
+      <Card border radius={1}>
+        <Stack space={1}>
+          <SelectionToolbar
+            path={path}
+            id={`${id}-selectionToolbar`}
+            selectedItemKeys={selectedItemKeys}
+            invalidItemKeys={invalidItemKeys}
+            allKeys={memberKeys}
+            selectActive={selectActive}
+            canUpload={acceptsImagesOrFiles}
+            onSelectedItemsRemove={onSelectedItemsRemove}
+            onSelectEnd={onSelectEnd}
+            onSelectBegin={onSelectBegin}
+            onItemSelect={onItemSelect}
+            onItemUnselect={onItemUnselect}
+          >
+            <ArrayFunctions
+              onChange={onChange}
+              onItemAppend={handleAppend}
+              onItemPrepend={handlePrepend}
+              onValueCreate={createProtoArrayValue}
+              readOnly={readOnly}
+              schemaType={schemaType}
+              value={value}
+            />
+          </SelectionToolbar>
+          <UploadTargetCard
+            types={schemaType.of}
+            resolveUploader={resolveUploader}
+            onUpload={onUpload}
+            {...elementProps}
+            tabIndex={0}
+          >
+            <Stack data-ui="ArrayInput__content" space={2}>
+              {members?.length === 0 && (
+                <Card padding={3} border radius={2}>
+                  <Text align="center" muted size={1}>
+                    {schemaType.placeholder || <>{t('inputs.array.no-items-label')}</>}
+                  </Text>
+                </Card>
+              )}
+              {members?.length > 0 && (
+                <Card>
+                  <List
+                    columns={[2, 3, 4]}
+                    gap={3}
+                    padding={1}
+                    margin={1}
+                    items={memberKeys}
+                    onItemMove={onItemMove}
+                    sortable={sortable}
+                  >
+                    {members.map((member) => (
+                      <Item key={member.key} sortable={sortable} id={member.key} flex={1}>
+                        {member.kind === 'item' && (
+                          <ArrayOfObjectsItem
+                            member={member}
+                            renderAnnotation={renderAnnotation}
+                            renderBlock={renderBlock}
+                            renderInlineBlock={renderInlineBlock}
+                            renderItem={renderItem}
+                            renderField={renderField}
+                            renderInput={renderInput}
+                            renderPreview={renderPreview}
+                          />
+                        )}
+                        {member.kind === 'error' && (
+                          <ErrorItem sortable={sortable} member={member} readOnly={readOnly} />
+                        )}
+                      </Item>
+                    ))}
+                  </List>
+                </Card>
+              )}
+            </Stack>
+          </UploadTargetCard>
         </Stack>
-      </UploadTargetCard>
-
-      <ArrayFunctions
-        onChange={onChange}
-        onItemAppend={onItemAppend}
-        onItemPrepend={onItemPrepend}
-        onValueCreate={createProtoArrayValue}
-        readOnly={readOnly}
-        schemaType={schemaType}
-        value={value}
-      />
+      </Card>
     </Stack>
   )
 }

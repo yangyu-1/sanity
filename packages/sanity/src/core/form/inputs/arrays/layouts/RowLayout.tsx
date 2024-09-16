@@ -9,7 +9,7 @@ import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 interface RowLayoutProps {
   tone?: CardTone
   dragHandle?: boolean
-  onSelect?: (range: boolean) => void
+  onSelect?: (options: {metaKey?: boolean; shiftKey?: boolean}) => void
   onUnselect?: () => void
   focused?: boolean
   presence?: ReactNode
@@ -45,6 +45,15 @@ const Root = styled(Card)`
     border-color: var(--card-focus-ring-color);
   }
 `
+const PreviewWrapper = styled(Box)`
+  border: 1px solid transparent;
+  transition: border-color 250ms;
+
+  &[aria-selected='true'] {
+    border-color: var(--card-focus-ring-color);
+  }
+`
+const noop = () => {}
 
 export function RowLayout(props: RowLayoutProps) {
   const {
@@ -72,10 +81,10 @@ export function RowLayout(props: RowLayoutProps) {
     }
   })
 
-  const handleSelectionChange = useCallback(
+  const handleCheckboxChange = useCallback(
     (event) => {
       if (event.currentTarget.checked) {
-        onSelect?.(event.shiftKey)
+        onSelect?.({shiftKey: event.shiftKey, metaKey: true})
       } else {
         onUnselect?.()
       }
@@ -96,13 +105,31 @@ export function RowLayout(props: RowLayoutProps) {
         <Flex align="center" gap={1}>
           {selectable ? (
             <Flex as="label" padding={1}>
-              <Checkbox checked={selected} onClick={handleSelectionChange} />
+              <Checkbox
+                checked={!!selected}
+                onClick={handleCheckboxChange}
+                onChange={
+                  // shut up, react
+                  noop
+                }
+              />
             </Flex>
           ) : (
             dragHandle && <DragHandle paddingY={3} readOnly={readOnly} />
           )}
 
-          <Box flex={1}>{children}</Box>
+          <Box
+            flex={1}
+            onClickCapture={(e) => {
+              if (selectable) {
+                e.preventDefault()
+                e.stopPropagation()
+                onSelect?.({metaKey: true, shiftKey: e.shiftKey})
+              }
+            }}
+          >
+            {children}
+          </Box>
 
           {(presence || validation || menu) && (
             <Flex align="center" flex="none" gap={2} style={{lineHeight: 0}}>

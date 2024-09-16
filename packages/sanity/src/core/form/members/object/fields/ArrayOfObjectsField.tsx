@@ -56,7 +56,12 @@ interface ArrayInputContextProviderValue {
   /**
    * @hidden
    * @beta */
-  onItemSelect: (itemKeys: string, range?: boolean) => void
+  onItemSelect: (
+    itemKeys: string,
+    options?: {shiftKey?: boolean; metaKey?: boolean; force?: boolean},
+  ) => void
+  onSelectAll: () => void
+  onSelectNone: () => void
 
   /**
    * @hidden
@@ -367,13 +372,27 @@ export function ArrayOfObjectsField(props: {
   }, [member.field.members])
 
   const handleSelectItem = useCallback(
-    (itemKey: string, range?: boolean) => {
-      setSelectionState((current) =>
-        range ? selectRange(current, itemKeys, itemKey) : select(current, itemKey),
-      )
+    (itemKey: string, options?: {shiftKey?: boolean; metaKey?: boolean; force?: boolean}) => {
+      const range = options?.shiftKey
+      setSelectionState((current) => {
+        if (options?.force) {
+          return select(current, itemKey, true)
+        }
+        return range
+          ? selectRange(current, itemKeys, itemKey)
+          : toggleSelect(current, itemKey, options?.metaKey == true)
+      })
     },
     [itemKeys],
   )
+
+  const handleSelectAll = useCallback(() => {
+    setSelectionState((current) => selectAll(current, itemKeys))
+  }, [itemKeys])
+
+  const handleSelectNone = useCallback(() => {
+    setSelectionState((current) => unselectAll(current))
+  }, [])
 
   const handleSelectedItemsRemove = useCallback(() => {
     const toRemove = selectionState.currentSelection
@@ -484,6 +503,8 @@ export function ArrayOfObjectsField(props: {
       selectActive: selectionState.active,
       onItemSelect: handleSelectItem,
       onItemUnselect: handleUnselectItem,
+      onSelectAll: handleSelectAll,
+      onSelectNone: handleSelectNone,
       onSelectBegin: handleSelectBegin,
       onSelectEnd: handleSelectEnd,
       selectedItemKeys: selectionState.currentSelection,
@@ -532,6 +553,8 @@ export function ArrayOfObjectsField(props: {
     selectionState.currentSelection,
     handleSelectItem,
     handleUnselectItem,
+    handleSelectAll,
+    handleSelectNone,
     handleSelectBegin,
     handleSelectEnd,
     handleSelectedItemsRemove,
@@ -610,6 +633,8 @@ export function ArrayOfObjectsField(props: {
               active: selectionState.active,
               onSelectedItemsRemove: fieldProps.inputProps.onSelectedItemsRemove,
               onItemSelect: fieldProps.inputProps.onItemSelect,
+              onSelectAll: fieldProps.inputProps.onSelectAll,
+              onSelectNone: fieldProps.inputProps.onSelectNone,
               onItemUnselect: fieldProps.inputProps.onItemUnselect,
               onSelectBegin: fieldProps.inputProps.onSelectBegin,
               onSelectEnd: fieldProps.inputProps.onSelectEnd,
@@ -631,8 +656,16 @@ interface SelectionState<T> {
   currentSelection: T[]
 }
 
+function select<T>(state: SelectionState<T>, item: T, additive: boolean) {
+  return additive ? selectAdditive(state, item) : selectExclusive(state, item)
+}
+function toggleSelect<T>(state: SelectionState<T>, item: T, additive: boolean) {
+  const selected = state.currentSelection.includes(item)
+  return selected && additive ? unselect(state, item) : select(state, item, additive)
+}
+
 // this assumes items are not already in array
-function select<T>(state: SelectionState<T>, item: T): SelectionState<T> {
+function selectAdditive<T>(state: SelectionState<T>, item: T): SelectionState<T> {
   const nextCurrentSelection: T[] = []
 
   let alreadySelected = false
@@ -650,6 +683,25 @@ function select<T>(state: SelectionState<T>, item: T): SelectionState<T> {
 }
 
 // this assumes items are not already in array
+function selectAll<T>(state: SelectionState<T>, items: T[]): SelectionState<T> {
+  return {...state, active: true, lastSelected: undefined, currentSelection: items}
+}
+
+// this assumes items are not already in array
+function unselectAll<T>(state: SelectionState<T>): SelectionState<T> {
+  return {
+    ...state,
+    lastSelected: undefined,
+    currentSelection: [],
+  }
+}
+
+// this assumes items are not already in array
+function selectExclusive<T>(state: SelectionState<T>, item: T): SelectionState<T> {
+  return {...state, active: true, lastSelected: item, currentSelection: [item]}
+}
+
+// this assumes items are not already in array
 function unselect<T>(state: SelectionState<T>, item: T): SelectionState<T> {
   return {
     ...state,
@@ -657,7 +709,6 @@ function unselect<T>(state: SelectionState<T>, item: T): SelectionState<T> {
     currentSelection: state.currentSelection.filter((i) => i !== item),
   }
 }
-
 // this assumes items are not already in array
 function setActive<T>(state: SelectionState<T>, active: boolean): SelectionState<T> {
   return {
@@ -672,7 +723,7 @@ function selectRange<T>(state: SelectionState<T>, items: T[], item: T): Selectio
   const fromItem = state.lastSelected || getClosest(state.currentSelection, items, item)
 
   if (!fromItem) {
-    return select(state, item)
+    return selectAdditive(state, item)
   }
 
   const fromIndex = fromItem ? items.indexOf(fromItem) : 0
@@ -680,7 +731,7 @@ function selectRange<T>(state: SelectionState<T>, items: T[], item: T): Selectio
 
   const toSelect = items.slice(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex) + 1)
 
-  return toSelect.reduce((acc, i) => select(acc, i), state)
+  return toSelect.reduce((acc, i) => selectAdditive(acc, i), state)
 }
 
 function unselectMissing<T>(state: SelectionState<T>, items: T[]): SelectionState<T> {

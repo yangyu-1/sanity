@@ -1,5 +1,12 @@
 /* eslint-disable no-nested-ternary, react/jsx-no-bind */
-import {AddDocumentIcon, CheckmarkCircleIcon, CircleIcon, CopyIcon, TrashIcon} from '@sanity/icons'
+import {
+  AddDocumentIcon,
+  CheckmarkCircleIcon,
+  CircleIcon,
+  CopyIcon,
+  EyeOpenIcon,
+  TrashIcon,
+} from '@sanity/icons'
 import {type SchemaType} from '@sanity/types'
 import {Box, Card, type CardTone, Menu} from '@sanity/ui'
 import {useCallback, useMemo, useRef, useState} from 'react'
@@ -166,6 +173,7 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
             id={`${props.inputId}-menuButton`}
             menu={
               <Menu>
+                {selectable ? <MenuItem text="Open" icon={EyeOpenIcon} onClick={onOpen} /> : null}
                 <MenuItem
                   text={t('inputs.array.action.remove')}
                   tone="critical"
@@ -203,13 +211,15 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
       insertBefore,
       insertAfter,
       props.inputId,
+      selectable,
+      onOpen,
       t,
       onRemove,
       selected,
       onUnselect,
-      onSelect,
       handleCopy,
       handleDuplicate,
+      onSelect,
     ],
   )
 
@@ -238,7 +248,7 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
         onClick={onOpen}
         ref={previewCardRef}
         onFocus={onFocus}
-        __unstable_focusRing
+        __unstable_focusRing={!selectable}
         style={BUTTON_CARD_STYLE}
       >
         {renderPreview({

@@ -1,10 +1,10 @@
 import {
   AddDocumentIcon,
-  CheckmarkCircleIcon,
-  CircleIcon,
+  CheckmarkIcon,
   CloseIcon,
   CopyIcon,
   LaunchIcon as OpenInNewTabIcon,
+  SquareIcon,
   SyncIcon as ReplaceIcon,
   TrashIcon,
 } from '@sanity/icons'
@@ -252,13 +252,9 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
                       onClick={handleReplace}
                     />
                     {selected ? (
-                      <MenuItem text="Unselect" icon={CircleIcon} onClick={onUnselect} />
+                      <MenuItem text="Unselect" icon={SquareIcon} onClick={onUnselect} />
                     ) : (
-                      <MenuItem
-                        text="Select"
-                        icon={CheckmarkCircleIcon}
-                        onClick={() => onSelect()}
-                      />
+                      <MenuItem text="Select" icon={CheckmarkIcon} onClick={() => onSelect()} />
                     )}
                     <MenuItem
                       text={t('inputs.reference.action.copy')}
@@ -303,7 +299,10 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
       insertBefore,
       isEditing,
       onRemove,
+      onSelect,
+      onUnselect,
       readOnly,
+      selected,
       setMenuButtonRef,
       t,
     ],
@@ -398,7 +397,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
             documentId={value?._ref}
             documentType={refType?.name}
             disabled={resolvingInitialValue}
-            __unstable_focusRing
+            __unstable_focusRing={!selectable}
             selected={active}
             pressed={pressed}
             data-selected={selected ? true : undefined}

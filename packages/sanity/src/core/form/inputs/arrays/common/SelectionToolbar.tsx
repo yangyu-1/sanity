@@ -1,8 +1,8 @@
-import {ChevronDownIcon, CloseIcon, CopyIcon, TrashIcon} from '@sanity/icons'
+import {ChevronDownIcon, CloseIcon, CopyIcon, TrashIcon, UploadIcon} from '@sanity/icons'
 import {type Path} from '@sanity/types'
 import {Card, Checkbox, Flex, Inline, Menu, Text} from '@sanity/ui'
-import {useCallback} from 'react'
-import {styled} from 'styled-components'
+import {type ReactNode, useCallback} from 'react'
+import {css, styled} from 'styled-components'
 
 import {Button, MenuButton, MenuItem} from '../../../../../ui-components'
 import {useCopyPaste} from '../../../../studio'
@@ -15,16 +15,28 @@ interface SelectionToolbarProps {
   path: Path
   id: string
   allKeys: string[]
-  onItemSelect: (item: string, range?: boolean) => void
+  selectActive?: boolean
+  onItemSelect: (
+    item: string,
+    options?: {shiftKey?: boolean; metaKey?: boolean; force?: boolean},
+  ) => void
   onItemUnselect: (item: string) => void
   onSelectedItemsRemove: () => void
   onSelectEnd: () => void
+  onSelectBegin: () => void
+  canUpload: boolean
+  children?: ReactNode
 }
 
-const StickyCard = styled(Card)`
-  position: sticky;
-  top: 0;
-  z-index: 400;
+const StickyCard = styled(Card)<{sticky?: boolean}>`
+  ${(props) =>
+    props.sticky
+      ? css`
+          position: sticky;
+          top: 1px;
+          z-index: 400;
+        `
+      : ``}
 `
 
 export function SelectionToolbar(props: SelectionToolbarProps) {
@@ -32,25 +44,30 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
     invalidItemKeys,
     selectedItemKeys,
     onItemSelect,
+    selectActive,
     onItemUnselect,
     allKeys,
     path,
     id,
     onSelectedItemsRemove,
     onSelectEnd,
+    onSelectBegin,
+    canUpload,
   } = props
+
   const handleSelectInvalid = useCallback(() => {
-    invalidItemKeys.forEach((key) => onItemSelect(key))
+    invalidItemKeys.forEach((key) => onItemSelect(key, {force: true}))
   }, [invalidItemKeys, onItemSelect])
+
   const handleSelectAll = useCallback(() => {
-    allKeys.forEach((key) => onItemSelect(key))
+    allKeys.forEach((key) => onItemSelect(key, {force: true}))
   }, [allKeys, onItemSelect])
 
   const handleSelectNone = useCallback(() => {
     selectedItemKeys.forEach((key) => onItemUnselect(key))
   }, [onItemUnselect, selectedItemKeys])
 
-  const allSelected = selectedItemKeys.length === allKeys.length
+  const allSelected = selectedItemKeys.length > 0 && selectedItemKeys.length === allKeys.length
   const itemTxt = (len: number) => <>item{len === 1 ? '' : 's'}</>
 
   const {onCopy} = useCopyPaste()
@@ -65,28 +82,49 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
   }, [getFormValue, onCopy, path, selectedItemKeys])
 
   return (
-    <StickyCard display="flex" padding={2} border tone="primary" radius={2}>
+    <StickyCard
+      sticky={selectActive}
+      display="flex"
+      tone={selectActive ? 'primary' : 'inherit'}
+      borderBottom
+      padding={2}
+    >
       <>
-        <Flex flex={1} gap={3} paddingLeft={1} align="center" justify="flex-start">
+        <Flex flex={1} gap={3} align="center" justify="flex-start">
           <Inline space={2}>
-            <Checkbox
-              indeterminate={!allSelected && selectedItemKeys.length > 0}
-              checked={allSelected}
-              onClick={allSelected ? handleSelectNone : handleSelectAll}
-            />
+            <Flex as="label" padding={1}>
+              <Checkbox
+                disabled={allKeys.length === 0}
+                indeterminate={!allSelected && selectedItemKeys.length > 0}
+                checked={allSelected}
+                onChange={allSelected ? handleSelectNone : handleSelectAll}
+              />
+            </Flex>
             <MenuButton
               id={`${id}-selectMenuButton`}
               button={
                 <Button
+                  disabled={allKeys.length === 0}
                   mode="bleed"
                   icon={ChevronDownIcon}
                   tooltipProps={{
+                    zOffset: 500,
+                    portal: true,
                     content: 'Select…',
                   }}
                 />
               }
               menu={
                 <Menu>
+                  {selectActive ? (
+                    <MenuItem text={`Exit select mode`} onClick={onSelectEnd} />
+                  ) : (
+                    <MenuItem
+                      text={`Select individual`}
+                      disabled={allSelected}
+                      onClick={onSelectBegin}
+                    />
+                  )}
                   <MenuItem
                     text={`Select all (${allKeys.length})`}
                     disabled={allSelected}
@@ -109,11 +147,13 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
               popover={{portal: true, tone: 'default'}}
             />
           </Inline>
-          <Inline space={1}>
-            <Text size={1} muted>
-              {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)} selected
-            </Text>
-          </Inline>
+          {selectActive ? (
+            <Inline space={1}>
+              <Text size={1} muted>
+                {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)} selected
+              </Text>
+            </Inline>
+          ) : null}
         </Flex>
         <Flex gap={2} align="center">
           {selectedItemKeys.length ? (
@@ -124,6 +164,9 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 icon={TrashIcon}
                 text="Remove"
                 tooltipProps={{
+                  zOffset: 500,
+
+                  portal: true,
                   content: (
                     <Text size={1}>
                       Remove {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
@@ -137,6 +180,9 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 icon={CopyIcon}
                 text="Copy"
                 tooltipProps={{
+                  zOffset: 500,
+
+                  portal: true,
                   content: (
                     <Text size={1}>
                       Copy {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
@@ -147,12 +193,22 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
               />
             </>
           ) : null}
-          <Button
-            mode="bleed"
-            icon={CloseIcon}
-            onClick={onSelectEnd}
-            tooltipProps={{content: 'Cancel'}}
-          />
+          {selectActive ? (
+            <Button
+              mode="ghost"
+              icon={CloseIcon}
+              onClick={onSelectEnd}
+              tooltipProps={{
+                zOffset: 500,
+                portal: true,
+                content: 'Exit select mode',
+              }}
+            />
+          ) : null}
+          {selectActive || !canUpload ? null : (
+            <Button mode="ghost" text="Upload" icon={UploadIcon} />
+          )}
+          {selectActive ? null : <>{props.children}</>}
         </Flex>
       </>
     </StickyCard>

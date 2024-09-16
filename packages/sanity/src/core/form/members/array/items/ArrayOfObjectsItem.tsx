@@ -245,8 +245,8 @@ export function ArrayOfObjectsItem(props: MemberItemProps) {
   }, [onPathOpen, member.item.path])
 
   const handleSelect = useCallback(
-    (range?: boolean) => {
-      onItemSelect(member.key, range)
+    (options?: {shiftKey?: boolean; metaKey?: boolean; force?: boolean}) => {
+      onItemSelect(member.key, options)
     },
     [member.key, onItemSelect],
   )

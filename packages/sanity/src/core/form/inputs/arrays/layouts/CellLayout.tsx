@@ -13,7 +13,7 @@ interface RowLayoutProps {
   menu?: ReactNode
   footer?: ReactNode
   selectable?: boolean
-  onSelect: (range?: boolean) => void
+  onSelect: (options?: {metaKey?: boolean; shiftKey?: boolean}) => void
   onUnselect?: () => void
   open?: boolean
   children?: ReactNode
@@ -96,7 +96,7 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
   const handleSelectionChange = useCallback(
     (event) => {
       if (event.currentTarget.checked) {
-        onSelect?.(event.shiftKey)
+        onSelect?.({shiftKey: event.shiftKey})
       } else {
         onUnselect?.()
       }
@@ -115,7 +115,18 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
       tone={tone}
       {...rest}
     >
-      {children}
+      <Box
+        flex={1}
+        onClickCapture={(e) => {
+          if (selectable) {
+            e.preventDefault()
+            e.stopPropagation()
+            onSelect?.({metaKey: true, shiftKey: e.shiftKey})
+          }
+        }}
+      >
+        {children}
+      </Box>
 
       {selectable ? (
         <CheckBoxCard>
