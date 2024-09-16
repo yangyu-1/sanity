@@ -122,7 +122,7 @@ export function RowLayout(props: RowLayoutProps) {
           <Box
             flex={1}
             onClickCapture={(e) => {
-              if (selectable && (e.metaKey || e.shiftKey)) {
+              if (e.metaKey || e.shiftKey) {
                 e.preventDefault()
                 e.stopPropagation()
                 onSelect?.({metaKey: true, shiftKey: e.shiftKey})
