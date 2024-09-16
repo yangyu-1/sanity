@@ -120,7 +120,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                     <MenuItem text={`Exit select mode`} onClick={onSelectEnd} />
                   ) : (
                     <MenuItem
-                      text={`Select individual`}
+                      text={`Select items`}
                       disabled={allSelected}
                       onClick={onSelectBegin}
                     />
