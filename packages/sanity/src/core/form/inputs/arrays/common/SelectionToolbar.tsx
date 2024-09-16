@@ -98,43 +98,45 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 onChange={allSelected ? handleSelectNone : handleSelectAll}
               />
             </Flex>
-            <MenuButton
-              id={`${id}-selectMenuButton`}
-              button={
-                <Button
-                  disabled={allKeys.length === 0}
-                  mode="bleed"
-                  icon={ChevronDownIcon}
-                  tooltipProps={{
-                    zOffset: 500,
-                    portal: true,
-                    content: 'Select…',
-                  }}
-                />
-              }
-              menu={
-                <Menu>
-                  <MenuItem
-                    text={`Select all (${allKeys.length})`}
-                    disabled={allSelected}
-                    onClick={handleSelectAll}
+            {false && (
+              <MenuButton
+                id={`${id}-selectMenuButton`}
+                button={
+                  <Button
+                    disabled={allKeys.length === 0}
+                    mode="bleed"
+                    icon={ChevronDownIcon}
+                    tooltipProps={{
+                      zOffset: 500,
+                      portal: true,
+                      content: 'Select…',
+                    }}
                   />
-                  <MenuItem
-                    text="Select none"
-                    disabled={selectedItemKeys.length === 0}
-                    onClick={handleSelectNone}
-                  />
-                  {invalidItemKeys.length > 0 ? (
+                }
+                menu={
+                  <Menu>
                     <MenuItem
-                      text={`Select invalid (${invalidItemKeys.length})`}
-                      disabled={invalidItemKeys.length === 0}
-                      onClick={handleSelectInvalid}
+                      text={`Select all (${allKeys.length})`}
+                      disabled={allSelected}
+                      onClick={handleSelectAll}
                     />
-                  ) : null}
-                </Menu>
-              }
-              popover={{portal: true, tone: 'default'}}
-            />
+                    <MenuItem
+                      text="Select none"
+                      disabled={selectedItemKeys.length === 0}
+                      onClick={handleSelectNone}
+                    />
+                    {invalidItemKeys.length > 0 ? (
+                      <MenuItem
+                        text={`Select invalid (${invalidItemKeys.length})`}
+                        disabled={invalidItemKeys.length === 0}
+                        onClick={handleSelectInvalid}
+                      />
+                    ) : null}
+                  </Menu>
+                }
+                popover={{portal: true, tone: 'default'}}
+              />
+            )}
           </Inline>
           {selectActive ? (
             <Inline space={1}>
