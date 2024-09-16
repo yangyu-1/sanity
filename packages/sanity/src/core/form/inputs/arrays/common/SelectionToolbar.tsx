@@ -186,7 +186,8 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
           ) : null}
 
           {selectActive || !canUpload ? null : (
-            <Button mode="bleed" text="Upload" icon={UploadIcon} />
+            // eslint-disable-next-line no-alert
+            <Button mode="bleed" text="Upload" icon={UploadIcon} onClick={() => alert('Todo ;)')} />
           )}
           {selectActive ? null : <>{props.children}</>}
         </Flex>
