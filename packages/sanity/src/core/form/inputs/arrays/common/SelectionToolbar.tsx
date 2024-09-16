@@ -1,4 +1,4 @@
-import {ChevronDownIcon, CloseIcon, CopyIcon, TrashIcon, UploadIcon} from '@sanity/icons'
+import {ChevronDownIcon, CopyIcon, TrashIcon, UploadIcon} from '@sanity/icons'
 import {type Path} from '@sanity/types'
 import {Card, Checkbox, Flex, Inline, Menu, Text} from '@sanity/ui'
 import {type ReactNode, useCallback} from 'react'
@@ -44,14 +44,11 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
     invalidItemKeys,
     selectedItemKeys,
     onItemSelect,
-    selectActive,
     onItemUnselect,
     allKeys,
     path,
     id,
     onSelectedItemsRemove,
-    onSelectEnd,
-    onSelectBegin,
     canUpload,
   } = props
 
@@ -67,6 +64,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
     selectedItemKeys.forEach((key) => onItemUnselect(key))
   }, [onItemUnselect, selectedItemKeys])
 
+  const selectActive = selectedItemKeys.length > 0
   const allSelected = selectedItemKeys.length > 0 && selectedItemKeys.length === allKeys.length
   const itemTxt = (len: number) => <>item{len === 1 ? '' : 's'}</>
 
@@ -116,15 +114,6 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
               }
               menu={
                 <Menu>
-                  {selectActive ? (
-                    <MenuItem text={`Exit select mode`} onClick={onSelectEnd} />
-                  ) : (
-                    <MenuItem
-                      text={`Select items`}
-                      disabled={allSelected}
-                      onClick={onSelectBegin}
-                    />
-                  )}
                   <MenuItem
                     text={`Select all (${allKeys.length})`}
                     disabled={allSelected}
@@ -159,6 +148,22 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
           {selectedItemKeys.length ? (
             <>
               <Button
+                mode="bleed"
+                icon={CopyIcon}
+                text="Copy"
+                tooltipProps={{
+                  zOffset: 500,
+
+                  portal: true,
+                  content: (
+                    <Text size={1}>
+                      Copy {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
+                    </Text>
+                  ),
+                }}
+                onClick={handleCopySelection}
+              />
+              <Button
                 tone="critical"
                 mode="bleed"
                 icon={TrashIcon}
@@ -175,36 +180,9 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
                 }}
                 onClick={onSelectedItemsRemove}
               />
-              <Button
-                mode="bleed"
-                icon={CopyIcon}
-                text="Copy"
-                tooltipProps={{
-                  zOffset: 500,
-
-                  portal: true,
-                  content: (
-                    <Text size={1}>
-                      Copy {selectedItemKeys.length} {itemTxt(selectedItemKeys.length)}
-                    </Text>
-                  ),
-                }}
-                onClick={handleCopySelection}
-              />
             </>
           ) : null}
-          {selectActive ? (
-            <Button
-              mode="ghost"
-              icon={CloseIcon}
-              onClick={onSelectEnd}
-              tooltipProps={{
-                zOffset: 500,
-                portal: true,
-                content: 'Exit select mode',
-              }}
-            />
-          ) : null}
+
           {selectActive || !canUpload ? null : (
             <Button mode="ghost" text="Upload" icon={UploadIcon} />
           )}

@@ -235,7 +235,6 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
       validation={validation}
       tone={tone}
       focused={focused}
-      dragHandle={sortable}
       open={open}
       readOnly={!!readOnly}
     >

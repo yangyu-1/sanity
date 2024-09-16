@@ -33,7 +33,6 @@ export function ErrorItem(props: {
   return (
     <Box paddingX={1}>
       <RowLayout
-        dragHandle={sortable}
         readOnly={!!readOnly}
         tone="caution"
         selectable={active}

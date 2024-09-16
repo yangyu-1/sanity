@@ -362,7 +362,6 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
         onUnselect={onUnselect}
         onSelect={onSelect}
         selectable={selectable}
-        dragHandle={sortable}
         readOnly={!!readOnly}
         presence={
           !isEditing && presence.length > 0 && <FieldPresence presence={presence} maxAvatars={1} />

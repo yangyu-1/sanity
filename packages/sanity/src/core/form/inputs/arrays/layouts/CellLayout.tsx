@@ -1,8 +1,15 @@
+import {useSortable} from '@dnd-kit/sortable'
 import {Box, Card, type CardTone, Checkbox, Flex} from '@sanity/ui'
-import {type ComponentProps, type MouseEventHandler, type ReactNode, useCallback} from 'react'
+import {
+  type ComponentProps,
+  type MouseEventHandler,
+  type ReactNode,
+  useCallback,
+  useContext,
+} from 'react'
 import {styled} from 'styled-components'
 
-import {DragHandle} from '../common/DragHandle'
+import {SortableItemIdContext} from '../../../../../_singletons'
 import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 
 interface RowLayoutProps {
@@ -93,16 +100,19 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
     ...rest
   } = props
 
-  const handleSelectionChange = useCallback(
+  const handleCheckboxChange = useCallback(
     (event) => {
       if (event.currentTarget.checked) {
-        onSelect?.({shiftKey: event.shiftKey})
+        onSelect?.({shiftKey: event.shiftKey, metaKey: true})
       } else {
         onUnselect?.()
       }
     },
     [onSelect, onUnselect],
   ) satisfies MouseEventHandler<HTMLInputElement>
+
+  const id = useContext(SortableItemIdContext)!
+  const {listeners, attributes} = useSortable({id, disabled: readOnly})
 
   return (
     <Root
@@ -114,11 +124,13 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
       radius={1}
       tone={tone}
       {...rest}
+      {...listeners}
+      {...attributes}
     >
       <Box
         flex={1}
         onClickCapture={(e) => {
-          if (selectable) {
+          if (selectable && (e.metaKey || e.shiftKey)) {
             e.preventDefault()
             e.stopPropagation()
             onSelect?.({metaKey: true, shiftKey: e.shiftKey})
@@ -128,25 +140,11 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
         {children}
       </Box>
 
-      {selectable ? (
-        <CheckBoxCard>
-          <Card as="label" display="flex" margin={0} padding={2} radius={2} tone="inherit">
-            <Checkbox checked={selected} onClick={handleSelectionChange} />
-          </Card>
-        </CheckBoxCard>
-      ) : (
-        dragHandle && (
-          <DragHandleCard
-            margin={1}
-            radius={2}
-            display="flex"
-            tone="inherit"
-            data-ui="DragHandleCard"
-          >
-            <DragHandle $grid mode="ghost" readOnly={!!readOnly} />
-          </DragHandleCard>
-        )
-      )}
+      <CheckBoxCard>
+        <Card as="label" display="flex" margin={0} padding={2} radius={2} tone="inherit">
+          <Checkbox checked={selected} onClick={handleCheckboxChange} />
+        </Card>
+      </CheckBoxCard>
 
       {presence && (
         <PresenceFlex align="center" marginX={1}>

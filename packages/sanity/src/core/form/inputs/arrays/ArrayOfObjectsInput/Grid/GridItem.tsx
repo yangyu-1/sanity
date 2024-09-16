@@ -241,7 +241,6 @@ export function GridItem<Item extends ObjectItem = ObjectItem>(props: GridItemPr
       tone={tone}
       radius={2}
       border
-      dragHandle={sortable}
       selectable={selectable}
       open={openPortal}
       selected={selected}

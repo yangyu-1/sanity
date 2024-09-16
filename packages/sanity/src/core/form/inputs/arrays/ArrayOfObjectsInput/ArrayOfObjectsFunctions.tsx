@@ -16,7 +16,7 @@ export function ArrayOfObjectsFunctions<
   Item extends ObjectItem,
   TSchemaType extends ArraySchemaType,
 >(props: ArrayInputFunctionsProps<Item, TSchemaType>) {
-  const {schemaType, readOnly, children, onValueCreate, onItemPrepend} = props
+  const {schemaType, readOnly, children, onValueCreate, onItemAppend} = props
   const {t} = useTranslation()
   const [gridElement, setGridElement] = useState<HTMLDivElement | null>(null)
   const [popoverToggleElement, setPopoverToggleElement] = useState<HTMLButtonElement | null>(null)
@@ -25,9 +25,9 @@ export function ArrayOfObjectsFunctions<
     (itemType: any) => {
       const item = onValueCreate(itemType)
 
-      onItemPrepend(item)
+      onItemAppend(item)
     },
-    [onValueCreate, onItemPrepend],
+    [onValueCreate, onItemAppend],
   )
 
   const handleAddBtnClick = useCallback(() => {

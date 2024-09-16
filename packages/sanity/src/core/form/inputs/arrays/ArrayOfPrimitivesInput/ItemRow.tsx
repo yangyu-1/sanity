@@ -102,7 +102,6 @@ export const ItemRow = forwardRef(function ItemRow(
       tone={tone}
       readOnly={!!readOnly}
       menu={!readOnly && menu}
-      dragHandle={sortable}
       presence={presence.length === 0 ? null : <FieldPresence presence={presence} maxAvatars={1} />}
       validation={
         validation.length > 0 ? (

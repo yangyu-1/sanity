@@ -35,7 +35,6 @@ export function ErrorItem(props: {member: ArrayItemError; sortable?: boolean; re
 
   return (
     <CellLayout
-      dragHandle={sortable}
       readOnly={readOnly}
       selectable={active}
       selected={selectedItemKeys.includes(member.key)}

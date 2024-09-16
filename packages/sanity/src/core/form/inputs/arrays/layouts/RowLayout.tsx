@@ -1,9 +1,10 @@
+import {useSortable} from '@dnd-kit/sortable'
 import {Box, Card, type CardTone, Checkbox, Flex, Stack} from '@sanity/ui'
-import {type MouseEventHandler, type ReactNode, useCallback, useRef} from 'react'
+import {type MouseEventHandler, type ReactNode, useCallback, useContext, useRef} from 'react'
+import {SortableItemIdContext} from 'sanity/_singletons'
 import {styled} from 'styled-components'
 
 import {useDidUpdate} from '../../../hooks/useDidUpdate'
-import {DragHandle} from '../common/DragHandle'
 import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 
 interface RowLayoutProps {
@@ -74,6 +75,8 @@ export function RowLayout(props: RowLayoutProps) {
   } = props
 
   const elementRef = useRef<HTMLDivElement | null>(null)
+  const id = useContext(SortableItemIdContext)!
+  const {listeners, attributes} = useSortable({id, disabled: readOnly})
 
   useDidUpdate(focused, (hadFocus, hasFocus) => {
     if (!hadFocus && hasFocus) {
@@ -100,28 +103,26 @@ export function RowLayout(props: RowLayoutProps) {
       radius={1}
       padding={1}
       tone={tone}
+      {...listeners}
+      {...attributes}
     >
       <Stack space={1}>
         <Flex align="center" gap={1}>
-          {selectable ? (
-            <Flex as="label" padding={1}>
-              <Checkbox
-                checked={!!selected}
-                onClick={handleCheckboxChange}
-                onChange={
-                  // shut up, react
-                  noop
-                }
-              />
-            </Flex>
-          ) : (
-            dragHandle && <DragHandle paddingY={3} readOnly={readOnly} />
-          )}
+          <Flex as="label" padding={1}>
+            <Checkbox
+              checked={!!selected}
+              onClick={handleCheckboxChange}
+              onChange={
+                // shut up, react
+                noop
+              }
+            />
+          </Flex>
 
           <Box
             flex={1}
             onClickCapture={(e) => {
-              if (selectable) {
+              if (selectable && (e.metaKey || e.shiftKey)) {
                 e.preventDefault()
                 e.stopPropagation()
                 onSelect?.({metaKey: true, shiftKey: e.shiftKey})
