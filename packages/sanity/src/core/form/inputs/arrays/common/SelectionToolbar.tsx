@@ -186,7 +186,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
           ) : null}
 
           {selectActive || !canUpload ? null : (
-            <Button mode="ghost" text="Upload" icon={UploadIcon} />
+            <Button mode="bleed" text="Upload" icon={UploadIcon} />
           )}
           {selectActive ? null : <>{props.children}</>}
         </Flex>
