@@ -37,6 +37,7 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
     onItemSelect,
     onSelectBegin,
     onChange,
+    onInsert,
     onItemPrepend,
     onItemAppend,
     onItemMove,
@@ -96,8 +97,8 @@ export function GridArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
           >
             <ArrayFunctions
               onChange={onChange}
-              onItemAppend={handleAppend}
-              onItemPrepend={handlePrepend}
+              onItemAppend={onItemAppend}
+              onItemPrepend={onItemPrepend}
               onValueCreate={createProtoArrayValue}
               readOnly={readOnly}
               schemaType={schemaType}

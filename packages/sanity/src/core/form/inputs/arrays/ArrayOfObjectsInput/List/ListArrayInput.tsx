@@ -69,20 +69,6 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
   const [activeDragItemIndex, setActiveDragItemIndex] = useState<number | null>(null)
   const {space} = useTheme().sanity
 
-  const handlePrepend = useCallback(
-    (item: Item) => {
-      onInsert({items: [item], position: 'before', referenceItem: 0})
-    },
-    [onInsert],
-  )
-
-  const handleAppend = useCallback(
-    (item: Item) => {
-      onInsert({items: [item], position: 'after', referenceItem: -1})
-    },
-    [onInsert],
-  )
-
   const acceptsImagesOrFiles = useMemo(() => {
     return schemaType.of.some(
       (itemType) => isImageSchemaType(itemType) || isFileSchemaType(itemType),
@@ -237,8 +223,8 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
           >
             <ArrayFunctions
               onChange={onChange}
-              onItemAppend={handleAppend}
-              onItemPrepend={handlePrepend}
+              onItemAppend={onItemAppend}
+              onItemPrepend={onItemPrepend}
               onValueCreate={createProtoArrayValue}
               readOnly={readOnly}
               schemaType={schemaType}
