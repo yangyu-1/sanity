@@ -22,6 +22,7 @@ interface SelectionToolbarProps {
   ) => void
   onItemUnselect: (item: string) => void
   onSelectedItemsRemove: () => void
+  readOnly?: boolean
   onSelectEnd: () => void
   onSelectBegin: () => void
   canUpload: boolean
@@ -47,6 +48,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
     onItemUnselect,
     allKeys,
     path,
+    readOnly,
     id,
     onSelectedItemsRemove,
     canUpload,
@@ -93,6 +95,7 @@ export function SelectionToolbar(props: SelectionToolbarProps) {
             <Flex as="label" padding={1}>
               <Checkbox
                 disabled={allKeys.length === 0}
+                readOnly={readOnly}
                 indeterminate={!allSelected && selectedItemKeys.length > 0}
                 checked={allSelected}
                 onChange={allSelected ? handleSelectNone : handleSelectAll}

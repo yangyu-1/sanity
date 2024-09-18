@@ -233,6 +233,7 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
       selectable={selectable}
       presence={presence}
       validation={validation}
+      dragHandle={sortable}
       tone={tone}
       focused={focused}
       open={open}

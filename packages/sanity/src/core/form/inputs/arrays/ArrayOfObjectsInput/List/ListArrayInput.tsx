@@ -209,6 +209,7 @@ export function ListArrayInput<Item extends ObjectItem>(props: ArrayOfObjectsInp
         <Stack space={1}>
           <SelectionToolbar
             path={path}
+            readOnly={readOnly}
             id={`${id}-selectionToolbar`}
             selectedItemKeys={selectedItemKeys}
             invalidItemKeys={invalidItemKeys}

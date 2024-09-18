@@ -5,6 +5,7 @@ import {SortableItemIdContext} from 'sanity/_singletons'
 import {styled} from 'styled-components'
 
 import {useDidUpdate} from '../../../hooks/useDidUpdate'
+import {DragHandle} from '../common/DragHandle'
 import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 
 interface RowLayoutProps {
@@ -36,6 +37,13 @@ const Root = styled(Card)`
       0 8px 17px 2px var(--card-shadow-umbra-color),
       0 3px 14px 2px var(--card-shadow-penumbra-color),
       0 5px 5px -3px var(--card-shadow-ambient-color);
+  }
+  [data-ui='DragHandleButton'] {
+    opacity: 0.6;
+  }
+
+  &:hover:not([readOnly]) [data-ui='DragHandleButton'] {
+    opacity: 1;
   }
 
   &:hover {
@@ -101,6 +109,7 @@ export function RowLayout(props: RowLayoutProps) {
       selected={selected || open}
       aria-selected={selected || open}
       radius={1}
+      readOnly={readOnly}
       padding={1}
       tone={tone}
       {...listeners}
@@ -110,6 +119,7 @@ export function RowLayout(props: RowLayoutProps) {
         <Flex align="center" gap={1}>
           <Flex as="label" padding={1}>
             <Checkbox
+              readOnly={readOnly}
               checked={!!selected}
               onClick={handleCheckboxChange}
               onChange={
@@ -118,7 +128,7 @@ export function RowLayout(props: RowLayoutProps) {
               }
             />
           </Flex>
-
+          {dragHandle && <DragHandle size="default" paddingY={3} readOnly={readOnly} />}
           <Box
             flex={1}
             onClickCapture={(e) => {
@@ -128,7 +138,19 @@ export function RowLayout(props: RowLayoutProps) {
                 onSelect?.({metaKey: true, shiftKey: e.shiftKey})
               }
             }}
+            style={{position: 'relative'}}
           >
+            {false && (
+              <Flex
+                align="center"
+                justify="center"
+                flex={1}
+                marginLeft={-6}
+                style={{position: 'absolute', zIndex: 400, height: '100%', left: -72}}
+              >
+                {dragHandle && <DragHandle paddingY={3} paddingX={3} readOnly={readOnly} />}
+              </Flex>
+            )}
             {children}
           </Box>
 

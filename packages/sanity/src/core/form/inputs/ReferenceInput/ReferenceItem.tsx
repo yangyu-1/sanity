@@ -361,6 +361,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
         selected={selected}
         onUnselect={onUnselect}
         onSelect={onSelect}
+        dragHandle={sortable}
         selectable={selectable}
         readOnly={!!readOnly}
         presence={
