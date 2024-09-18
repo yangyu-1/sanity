@@ -25,6 +25,7 @@ interface RowLayoutProps {
   readOnly: boolean
 }
 
+const Controls = styled(Flex)``
 const Root = styled(Card)`
   position: relative;
   border: 1px solid transparent;
@@ -38,11 +39,12 @@ const Root = styled(Card)`
       0 3px 14px 2px var(--card-shadow-penumbra-color),
       0 5px 5px -3px var(--card-shadow-ambient-color);
   }
-  [data-ui='DragHandleButton'] {
+  ${Controls} {
+    transition: opacity 400ms;
     opacity: 0.6;
   }
 
-  &:hover:not([readOnly]) [data-ui='DragHandleButton'] {
+  .${MOVING_ITEM_CLASS_NAME} & ${Controls}, &:hover:not([readOnly]) ${Controls} {
     opacity: 1;
   }
 
@@ -117,18 +119,20 @@ export function RowLayout(props: RowLayoutProps) {
     >
       <Stack space={1}>
         <Flex align="center" gap={1}>
-          <Flex as="label" padding={1}>
-            <Checkbox
-              readOnly={readOnly}
-              checked={!!selected}
-              onClick={handleCheckboxChange}
-              onChange={
-                // shut up, react
-                noop
-              }
-            />
-          </Flex>
-          {dragHandle && <DragHandle size="default" paddingY={3} readOnly={readOnly} />}
+          <Controls align="center">
+            <Flex as="label" padding={1}>
+              <Checkbox
+                readOnly={readOnly}
+                checked={!!selected}
+                onClick={handleCheckboxChange}
+                onChange={
+                  // shut up, react
+                  noop
+                }
+              />
+            </Flex>
+            {dragHandle && <DragHandle size="default" paddingY={3} readOnly={readOnly} />}
+          </Controls>
           <Box
             flex={1}
             onClickCapture={(e) => {
@@ -140,17 +144,6 @@ export function RowLayout(props: RowLayoutProps) {
             }}
             style={{position: 'relative'}}
           >
-            {false && (
-              <Flex
-                align="center"
-                justify="center"
-                flex={1}
-                marginLeft={-6}
-                style={{position: 'absolute', zIndex: 400, height: '100%', left: -72}}
-              >
-                {dragHandle && <DragHandle paddingY={3} paddingX={3} readOnly={readOnly} />}
-              </Flex>
-            )}
             {children}
           </Box>
 

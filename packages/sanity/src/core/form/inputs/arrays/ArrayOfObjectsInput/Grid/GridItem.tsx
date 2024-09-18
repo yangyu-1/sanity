@@ -99,6 +99,7 @@ export function GridItem<Item extends ObjectItem = ObjectItem>(props: GridItemPr
   const openPortal = open && (!treeEditing.enabled || legacyEditing)
 
   const sortable = parentSchemaType.options?.sortable !== false
+  const showDragHandle = parentSchemaType.options?.dragHandle !== false
   const insertableTypes = parentSchemaType.of
 
   const previewCardRef = useRef<FIXME | null>(null)
@@ -240,6 +241,7 @@ export function GridItem<Item extends ObjectItem = ObjectItem>(props: GridItemPr
       onUnselect={onUnselect}
       tone={tone}
       radius={2}
+      dragHandle={showDragHandle && sortable}
       border
       selectable={selectable}
       open={openPortal}

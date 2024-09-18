@@ -99,6 +99,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
   } = props
 
   const sortable = parentSchemaType.options?.sortable !== false
+  const showDragHandle = parentSchemaType.options?.dragHandle !== false
   const insertableTypes = parentSchemaType.of
 
   const elementRef = useRef<HTMLDivElement | null>(null)
@@ -361,7 +362,7 @@ export function ReferenceItem<Item extends ReferenceItemValue = ReferenceItemVal
         selected={selected}
         onUnselect={onUnselect}
         onSelect={onSelect}
-        dragHandle={sortable}
+        dragHandle={showDragHandle && sortable}
         selectable={selectable}
         readOnly={!!readOnly}
         presence={

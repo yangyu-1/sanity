@@ -58,6 +58,7 @@ export default defineType({
       name: 'arrayOfReferences',
       title: 'Array of references to authors',
       type: 'array',
+      options: {dragHandle: false},
       of: [{type: 'reference', to: [{type: 'author'}]}],
     },
     predefinedStringArray,
@@ -524,6 +525,7 @@ export default defineType({
       description: 'An array of multiple types. options: {layout: "grid"}',
       type: 'array',
       options: {
+        dragHandle: false,
         layout: 'grid',
       },
       of: [

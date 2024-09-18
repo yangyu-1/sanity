@@ -10,6 +10,7 @@ import {
 import {styled} from 'styled-components'
 
 import {SortableItemIdContext} from '../../../../../_singletons'
+import {DragHandle} from '../common/DragHandle'
 import {MOVING_ITEM_CLASS_NAME} from '../common/list'
 
 interface RowLayoutProps {
@@ -36,13 +37,7 @@ const PresenceFlex = styled(Flex)`
   height: 33px;
 `
 
-const DragHandleCard = styled(Card)`
-  position: absolute;
-  top: 0;
-  left: 0;
-`
-
-const CheckBoxCard = styled(Flex)`
+const Controls = styled(Card)`
   position: absolute;
   top: 0;
   left: 0;
@@ -54,13 +49,13 @@ const Root = styled(Card)`
   position: relative;
 
   @media (hover: hover) {
-    ${DragHandleCard} {
+    ${Controls} {
       opacity: 0;
     }
 
     &:hover,
     &:focus-within {
-      ${DragHandleCard} {
+      ${Controls} {
         opacity: 1;
       }
     }
@@ -130,7 +125,7 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
       <Box
         flex={1}
         onClickCapture={(e) => {
-          if (selectable && (e.metaKey || e.shiftKey)) {
+          if (e.metaKey || e.shiftKey) {
             e.preventDefault()
             e.stopPropagation()
             onSelect?.({metaKey: true, shiftKey: e.shiftKey})
@@ -140,11 +135,26 @@ export function CellLayout(props: RowLayoutProps & Omit<ComponentProps<typeof Ro
         {children}
       </Box>
 
-      <CheckBoxCard>
-        <Card as="label" display="flex" margin={0} padding={2} radius={2} tone="inherit">
-          <Checkbox checked={selected} onClick={handleCheckboxChange} />
-        </Card>
-      </CheckBoxCard>
+      <Controls
+        display="flex"
+        margin={0}
+        padding={2}
+        radius={2}
+        tone="inherit"
+        borderRight
+        borderBottom
+      >
+        <Flex align="center" gap={3}>
+          {dragHandle && (
+            <Flex>
+              <DragHandle $grid mode="ghost" readOnly={!!readOnly} />
+            </Flex>
+          )}
+          <Flex as="label">
+            <Checkbox checked={selected} onClick={handleCheckboxChange} />
+          </Flex>
+        </Flex>
+      </Controls>
 
       {presence && (
         <PresenceFlex align="center" marginX={1}>

@@ -89,6 +89,7 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
   const openPortal = open && (!treeEditing.enabled || legacyEditing)
 
   const sortable = parentSchemaType.options?.sortable !== false
+  const showDragHandle = parentSchemaType.options?.dragHandle !== false
   const insertableTypes = parentSchemaType.of
 
   const previewCardRef = useRef<HTMLDivElement | null>(null)
@@ -233,7 +234,7 @@ export function PreviewItem<Item extends ObjectItem = ObjectItem>(props: Preview
       selectable={selectable}
       presence={presence}
       validation={validation}
-      dragHandle={sortable}
+      dragHandle={showDragHandle && sortable}
       tone={tone}
       focused={focused}
       open={open}
