@@ -93,6 +93,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.3
         version: 4.3.4(vite@4.5.5(@types/node@22.10.0)(terser@5.32.0))
+      '@vitest/coverage-v8':
+        specifier: ^2.1.1
+        version: 2.1.1(vitest@2.1.1(@types/node@22.10.0)(jsdom@23.2.0)(terser@5.32.0))
       cac:
         specifier: ^6.7.12
         version: 6.7.14
