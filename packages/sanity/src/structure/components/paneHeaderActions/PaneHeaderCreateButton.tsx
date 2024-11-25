@@ -5,6 +5,7 @@ import {type ComponentProps, type ForwardedRef, forwardRef, useMemo} from 'react
 import {
   getBundleIdFromReleaseDocumentId,
   type InitialValueTemplateItem,
+  isDraftPerspective,
   isPublishedPerspective,
   LATEST,
   type Template,
@@ -64,9 +65,14 @@ interface PaneHeaderCreateButtonProps {
 export function PaneHeaderCreateButton({templateItems}: PaneHeaderCreateButtonProps) {
   const schema = useSchema()
   const templates = useTemplates()
-  const {currentGlobalBundleId} = usePerspective()
+  const {currentGlobalBundleId, currentGlobalBundle} = usePerspective()
+
+  const isReleaseActive =
+    !isPublishedPerspective(currentGlobalBundle) &&
+    (isDraftPerspective(currentGlobalBundle) || currentGlobalBundle.state === 'active')
 
   const {t} = useTranslation(structureLocaleNamespace)
+  const {t: tCore} = useTranslation()
   const getI18nText = useGetI18nText([...templateItems, ...templates])
 
   const [templatePermissions, isTemplatePermissionsLoading] = useTemplatePermissions({
@@ -114,13 +120,13 @@ export function PaneHeaderCreateButton({templateItems}: PaneHeaderCreateButtonPr
   if (templateItems.length === 1) {
     const firstItem = templateItems[0]
     const permissions = permissionsById[firstItem.id]
-    const disabled = !permissions?.granted
+    const disabled = !permissions?.granted || !isReleaseActive
     const intent = getIntent(schema, templates, firstItem, currentGlobalBundleId)
     if (!intent) return null
 
     return (
       <InsufficientPermissionsMessageTooltip
-        reveal={disabled}
+        reveal={!permissions?.granted}
         loading={isTemplatePermissionsLoading}
         context="create-document-type"
       >
@@ -131,7 +137,11 @@ export function PaneHeaderCreateButton({templateItems}: PaneHeaderCreateButtonPr
           mode="bleed"
           disabled={disabled}
           data-testid="action-intent-button"
-          tooltipProps={disabled ? null : {content: t('pane-header.create-new-button.tooltip')}}
+          tooltipProps={
+            disabled
+              ? {content: tCore('new-document.disabled-release.tooltip')}
+              : {content: t('pane-header.create-new-button.tooltip')}
+          }
         />
       </InsufficientPermissionsMessageTooltip>
     )
@@ -143,8 +153,13 @@ export function PaneHeaderCreateButton({templateItems}: PaneHeaderCreateButtonPr
         <Button
           icon={AddIcon}
           mode="bleed"
+          disabled={!isReleaseActive}
           data-testid="multi-action-intent-button"
-          tooltipProps={{content: t('pane-header.create-new-button.tooltip')}}
+          tooltipProps={
+            isReleaseActive
+              ? {content: t('pane-header.create-new-button.tooltip')}
+              : {content: tCore('new-document.disabled-release.tooltip')}
+          }
         />
       }
       id="create-menu"
