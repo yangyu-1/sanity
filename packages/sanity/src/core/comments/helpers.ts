@@ -4,12 +4,18 @@ import {useMemo, useRef} from 'react'
 
 import {type CommentContext, type CommentDocument, type CommentMessage} from './types'
 
+/**
+ * @internal
+ */
 export function useCommentHasChanged(message: CommentMessage): boolean {
   const prevMessage = useRef<CommentMessage>(message)
 
   return useMemo(() => !isEqual(prevMessage.current, message), [message])
 }
 
+/**
+ * @internal
+ */
 export function hasCommentMessageValue(value: CommentMessage): boolean {
   if (!value) return false
 
@@ -20,6 +26,9 @@ export function hasCommentMessageValue(value: CommentMessage): boolean {
   )
 }
 
+/**
+ * @internal
+ */
 export function commentIntentIfDiffers(
   parent?: CommentDocument,
   comment?: CommentDocument,
@@ -43,6 +52,7 @@ export function commentIntentIfDiffers(
 
 /**
  * A function that checks whether a comment is a text selection comment
+ * @internal
  */
 export function isTextSelectionComment(comment: CommentDocument): boolean {
   if (!comment) return false
