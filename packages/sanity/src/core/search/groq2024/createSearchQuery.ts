@@ -48,9 +48,6 @@ function toOrderClause(orderBy: SearchSort[]): string {
     .join(',')
 }
 
-// TODO: Remove.
-const TEMP_ENABLE_PATH_EXCLUSION = false
-
 /**
  * @internal
  */
@@ -78,50 +75,7 @@ export function createSearchQuery(
   // TODO: Unnecessary when `!isScored`.
   const groupedSpecs = groupBy(flattenedSpecs, (entry) => [entry.path, entry.weight].join(':'))
 
-  const zeroWeightedSpecs = flattenedSpecs.filter(({weight}) => weight === 0)
-  const zeroWeightedSpecsByType = groupBy(zeroWeightedSpecs, 'typeName')
-  const zeroWeightedTypes = Object.keys(zeroWeightedSpecsByType)
-  const hasZeroWeightedSpec = zeroWeightedSpecs.length !== 0
-
-  // Construct a GROQ expression that:
-  // 1. Matches all attributes if the type has no excluded attributes.
-  // 2. Matches all non-excluded attributes if the type has excluded attributes.
-  const conditionalMatches = Object.entries(zeroWeightedSpecsByType)
-    .map(([typeName, spec]) => {
-      const excludedPath = spec.map(({path}) => path).join(', ')
-      return [
-        // [2]
-        `(`,
-        `_type == ${JSON.stringify(typeName)}`,
-        ['&&', `@ match text::query($__query, { "exclude": (${excludedPath}) })`],
-        ')',
-      ]
-        .flat()
-        .join('')
-    })
-    .join(' || ')
-
-  // The initial negation (1) could be removed if types containing zero weights equal the types being searched for.
-  const _baseMatch = hasZeroWeightedSpec
-    ? [
-        '(',
-        [
-          // [1]
-          '(',
-          `!(_type in ${JSON.stringify(zeroWeightedTypes)})`,
-          '&&',
-          '@ match text::query($__query)',
-          ')',
-        ],
-        ['||', conditionalMatches],
-        ')',
-      ]
-        .flat()
-        .join('')
-    : '@ match text::query($__query)'
-
-  // TODO: Remove.
-  const baseMatch = TEMP_ENABLE_PATH_EXCLUSION ? _baseMatch : '@ match text::query($__query)'
+  const baseMatch = '@ match text::query($__query)'
 
   // TODO: Unnecessary when `!isScored`.
   const score = Object.entries(groupedSpecs)
